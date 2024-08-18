@@ -17,15 +17,14 @@ public class Config
         var userDir = Path.Combine(userProfile.FullName, ".japp");
         var userConfig = Path.Combine(userDir, "config.json");
 
-        if (!Directory.Exists(userDir))
+        if (false == Directory.Exists(userDir))
         {
             Directory.CreateDirectory(userDir);
         };
 
-        if (!File.Exists(userConfig))
+        if (false == File.Exists(userConfig))
         {
-            var newConfig = JsonSerializer.Serialize<Config>(new Config(), new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(userConfig, newConfig);
+            Save(new Config());
         }
 
         return userConfig;
@@ -38,4 +37,9 @@ public class Config
 
         return true;
     }
+
+    public static bool Reset()
+    {
+        return Save(new Config());
+    }    
 }
