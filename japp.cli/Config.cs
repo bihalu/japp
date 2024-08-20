@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace japp.cli;
 
@@ -8,7 +8,8 @@ public class Config
 
     public Config()
     {
-        Registry = "https://docker.io";
+        //Registry = "https://docker.io";
+        Registry = "192.168.178.59:5000";
     }
 
     public static string GetPath()
@@ -24,7 +25,8 @@ public class Config
 
         if (false == File.Exists(userConfig))
         {
-            Save(new Config());
+            var newConfig = JsonConvert.SerializeObject(new Config());
+            File.WriteAllText(userConfig, newConfig);
         }
 
         return userConfig;
@@ -32,7 +34,7 @@ public class Config
 
     public static bool Save(Config config)
     {
-        var newConfig = JsonSerializer.Serialize<Config>(config, new JsonSerializerOptions { WriteIndented = true });
+        var newConfig = JsonConvert.SerializeObject(config);
         File.WriteAllText(Config.GetPath(), newConfig);
 
         return true;
@@ -41,5 +43,5 @@ public class Config
     public static bool Reset()
     {
         return Save(new Config());
-    }    
+    }
 }

@@ -1,0 +1,52 @@
+{
+    // Verwendet IntelliSense zum Ermitteln möglicher Attribute.
+    // Zeigen Sie auf vorhandene Attribute, um die zugehörigen Beschreibungen anzuzeigen.
+    // Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "japp --version",
+            "type": "coreclr",
+            "request": "launch",
+            //"preLaunchTask": "build",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": [ "--version"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "japp --help",
+            "type": "coreclr",
+            "request": "launch",
+            //"preLaunchTask": "build",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": [ "--help"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "japp pull rancher/cowsay:latest",
+            "type": "coreclr",
+            "request": "launch",
+            //"preLaunchTask": "build",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": [ "pull", "rancher/cowsay:latest"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "japp --logging console:debug pull rancher/cowsay:latest",
+            "type": "coreclr",
+            "request": "launch",
+            //"preLaunchTask": "build",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": [ "--logging", "console:debug", "pull", "rancher/cowsay:latest"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        }
+    ]
+}
