@@ -10,15 +10,15 @@ public class Pull : Command
         private readonly ILogger log;
         private readonly IConfiguration config;
 
-        public Pull(ILogger log, IConfiguration config) : base("pull", "pull package from registry")
+        public Pull(ILogger log, IConfiguration config) : base("pull", "Pull package from registry")
         {
             this.log = log;
             this.config = config;
 
-            Argument package = new Argument<string>("package", "package name");
+            Argument package = new Argument<string>("package", "Package name");
             this.AddArgument(package);
             
-            Option output = new Option<string>(["--output", "-o"], "output folder");
+            Option output = new Option<string>(["--output", "-o"], "Output folder");
             output.IsRequired = false;
             this.AddOption(output);
 

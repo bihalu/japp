@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.CommandLine;
+using System.Reflection;
 
 namespace japp.cli;
 
@@ -8,34 +9,43 @@ class Program
 {
     public static async Task Main(string[] args)
     {
-        // user config
-        var userConfigPath = Config.GetPath();
-        IConfiguration config = new ConfigurationBuilder()
-            .AddJsonFile(userConfigPath, optional: true, reloadOnChange: true)
-            .Build();
-
         // root command
-        var rootCommand = new RootCommand();
-        rootCommand.Name = "japp";
-        rootCommand.Description = @"
+        var rootCommand = new RootCommand
+        {
+            Name = "japp",
+            Description = @$"
    _                   
   (_)                  
    _  __ _ _ __  _ __  
   | |/ _` | '_ \| '_ \ 
   | | (_| | |_) | |_) |
   | |\__,_| .__/| .__/ 
- _/ |     | |   | |    
-|__/      |_|   |_|    just another package program ;-)";
+ _/ |     | |   | |    Just another package program ;-)
+|__/      |_|   |_|    Version {GetInformationalVersion()}"
+        };
 
         // logging
-        Option logging = new Option<string>(["--logging", "-l"], "set logging, default is console:information");
+        Option logging = new Option<string>(["--logging", "-l"], "Set logging, default is console:information");
         logging.IsRequired = false;
         rootCommand.AddOption(logging);
 
         ILogger log = CreateLogger(args);
+        log.Debug("Version: {version}", GetInformationalVersion());
+
+        // user config
+        var userConfigPath = Config.GetPath();
+        IConfiguration config = new ConfigurationBuilder()
+            .AddJsonFile(userConfigPath, optional: false)
+            .Build();
+
+        var myConfig = new Config();
+        config.Bind(myConfig);
+        log.Debug("Config: {@myConfig}", myConfig);
 
         // add sub commands
+        rootCommand.AddCommand(new Set(log, config));
         rootCommand.AddCommand(new Pull(log, config));
+        rootCommand.AddCommand(new Create(log, config));
 
         await rootCommand.InvokeAsync(args);
     }
@@ -116,4 +126,9 @@ class Program
 
         return (logOutput, logLevel);
     }
+
+    private static string? GetInformationalVersion() => Assembly
+        .GetEntryAssembly()
+        ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion;
 }

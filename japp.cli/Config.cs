@@ -8,7 +8,7 @@ public class Config
 
     public Config()
     {
-        //Registry = "https://docker.io";
+        //Registry = "docker.io";
         Registry = "192.168.178.59:5000";
     }
 
