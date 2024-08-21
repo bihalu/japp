@@ -1,47 +1,78 @@
-using Newtonsoft.Json;
+using japp.lib;
+using japp.lib.Models;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using System.CommandLine;
 
 namespace japp.cli;
 
-public class Config
+public class Config : Command
 {
-    public string Registry { get; set; }
+    private readonly ILogger log;
+    private readonly IConfiguration config;
 
-    public Config()
+    public Config(ILogger log, IConfiguration config) : base("config", "Set config values")
     {
-        //Registry = "docker.io";
-        Registry = "192.168.178.59:5000";
+        this.log = log;
+        this.config = config;
+
+        Option registry = new Option<string>(["--registry", "-r"], "Set registry")
+        {
+            IsRequired = false
+        };
+        AddOption(registry);
+
+        Option temp = new Option<string>(["--temp", "-t"], "Set temp folder")
+        {
+            IsRequired = false
+        };
+        AddOption(temp);
+
+        Option cleanup = new Option<bool?>(["--cleanup", "-c"], "Set cleanup")
+        {
+            IsRequired = false
+        };
+        AddOption(cleanup);
+
+        Option reset = new Option<bool>(["--reset"], "Reset default config")
+        {
+            IsRequired = false
+        };
+        AddOption(reset);
+
+        this.SetHandler((string registry, string temp, bool? cleanup, bool reset) => HandleConfig(registry, temp, cleanup, reset), registry, temp, cleanup, reset);
     }
 
-    public static string GetPath()
+    private int HandleConfig(string registry, string temp, bool? cleanup, bool reset)
     {
-        var userProfile = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-        var userDir = Path.Combine(userProfile.FullName, ".japp");
-        var userConfig = Path.Combine(userDir, "config.json");
+        var myConfig = Helper.BindConfig(config);
 
-        if (false == Directory.Exists(userDir))
+        if (!string.IsNullOrEmpty(registry))
         {
-            Directory.CreateDirectory(userDir);
-        };
-
-        if (false == File.Exists(userConfig))
-        {
-            var newConfig = JsonConvert.SerializeObject(new Config());
-            File.WriteAllText(userConfig, newConfig);
+            myConfig.Registry = registry;
+            Helper.SaveConfig(myConfig);
         }
 
-        return userConfig;
-    }
+        if (!string.IsNullOrEmpty(temp))
+        {
+            myConfig.TempFolder = temp;
+            Helper.SaveConfig(myConfig);
+        }
 
-    public static bool Save(Config config)
-    {
-        var newConfig = JsonConvert.SerializeObject(config);
-        File.WriteAllText(Config.GetPath(), newConfig);
+        if (null != cleanup)
+        {
+            myConfig.Cleanup = (bool)cleanup;
+            Helper.SaveConfig(myConfig);
+        }
 
-        return true;
-    }
+        if (reset)
+        {
+            Helper.ResetConfig();
+            myConfig = new ConfigModel();
+        }
 
-    public static bool Reset()
-    {
-        return Save(new Config());
+        log.Debug("New config: {@myConfig}", myConfig);
+
+        return 0;
     }
 }

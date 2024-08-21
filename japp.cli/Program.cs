@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using japp.lib;
+using japp.lib.Models;
+using Microsoft.Extensions.Configuration;
 using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 using System.CommandLine;
 using System.Reflection;
 
@@ -9,7 +13,7 @@ class Program
 {
     public static async Task Main(string[] args)
     {
-        // root command
+        // Root command
         var rootCommand = new RootCommand
         {
             Name = "japp",
@@ -24,38 +28,39 @@ class Program
 |__/      |_|   |_|    Version {GetInformationalVersion()}"
         };
 
-        // logging
-        Option logging = new Option<string>(["--logging", "-l"], "Set logging, default is console:information");
-        logging.IsRequired = false;
-        rootCommand.AddOption(logging);
-
-        ILogger log = CreateLogger(args);
-        log.Debug("Version: {version}", GetInformationalVersion());
-
-        // user config
-        var userConfigPath = Config.GetPath();
+        // User config
+        var userConfigPath = Helper.GetConfigPath();
         IConfiguration config = new ConfigurationBuilder()
             .AddJsonFile(userConfigPath, optional: false)
             .Build();
 
-        var myConfig = new Config();
-        config.Bind(myConfig);
+        var myConfig = Helper.BindConfig(config);
+
+        // Logging
+        Option logging = new Option<string>(["--logging", "-l"], "Set logging, default is console:information")
+        {
+            IsRequired = false
+        };
+        rootCommand.AddOption(logging);
+
+        ILogger log = CreateLogger(args, myConfig);
+        log.Debug("Version: {version}", GetInformationalVersion());
         log.Debug("Config: {@myConfig}", myConfig);
 
-        // add sub commands
-        rootCommand.AddCommand(new Set(log, config));
-        rootCommand.AddCommand(new Pull(log, config));
+        // Add sub commands
+        rootCommand.AddCommand(new Config(log, config));
         rootCommand.AddCommand(new Create(log, config));
+        rootCommand.AddCommand(new Pull(log, config));
 
         await rootCommand.InvokeAsync(args);
     }
 
-    private static ILogger CreateLogger(string[] args)
+    private static ILogger CreateLogger(string[] args, ConfigModel config)
     {
-        LoggerConfiguration loggerConfiguration= new();
+        LoggerConfiguration loggerConfiguration = new();
 
-        string logOutput = GetLogOutputAndLevel(args).Item1;
-        string logLevel = GetLogOutputAndLevel(args).Item2;
+        string logOutput = GetLogOutputAndLevel(args).logOutput;
+        string logLevel = GetLogOutputAndLevel(args).logLevel;
 
         switch (logOutput)
         {
@@ -64,71 +69,94 @@ class Program
                 break;
 
             case "file":
-                loggerConfiguration.WriteTo.File("/tmp/japp.log");
+                string logFile = Path.Combine(config.TempFolder, "japp.log");
+                loggerConfiguration.WriteTo.File(logFile);
                 break;
 
             default:
+                loggerConfiguration.WriteTo.Console();
                 break;
         }
+
+        var loggingLevelSwitch = new LoggingLevelSwitch();
+        loggerConfiguration.MinimumLevel.ControlledBy(loggingLevelSwitch);
 
         switch (logLevel)
         {
             case "verbose":
-                loggerConfiguration.MinimumLevel.Verbose();
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Verbose;
                 break;
 
             case "debug":
-                loggerConfiguration.MinimumLevel.Debug();
-                break;
-
-            case "error":
-                loggerConfiguration.MinimumLevel.Error();
-                break;
-
-            case "warning":
-                loggerConfiguration.MinimumLevel.Warning();
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Debug;
                 break;
 
             case "information":
-                loggerConfiguration.MinimumLevel.Information();
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
+                break;
+
+            case "warning":
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Warning;
+                break;
+
+            case "error":
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Error;
+                break;
+
+            case "fatal":
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Fatal;
+                break;
+
+            case "off":
+                loggingLevelSwitch.MinimumLevel = (LogEventLevel)1 + (int)LogEventLevel.Fatal;
                 break;
 
             default:
+                loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
                 break;
         }
 
         return loggerConfiguration.CreateLogger();
     }
 
-    private static (string, string) GetLogOutputAndLevel(string [] args)
+    private static (string logOutput, string logLevel) GetLogOutputAndLevel(string[] args)
     {
         string logOutput = "console";
         string logLevel = "information";
 
-        for(int i = 0; i < args.Length; i++)
+        try
         {
-            if(args[i].StartsWith("--logging") || args[i].StartsWith("-l"))
+            for (int i = 0; i < args.Length; i++)
             {
-                if(args[i].Contains("="))
+                if (args[i].StartsWith("--logging") || args[i].StartsWith("-l"))
                 {
-                    string logging = args[i].Split('=')[1].ToLower();
-                    logOutput = logging.Split(':')[0];
-                    logLevel = logging.Split(':')[1];
-                }
-                else
-                {
-                    string logging = args[i + 1].ToLower();
-                    logOutput = logging.Split(':')[0];
-                    logLevel = logging.Split(':')[1];
+                    if (args[i].Contains("="))
+                    {
+                        string logging = args[i].Split('=')[1].ToLower();
+                        logOutput = logging.Split(':')[0];
+                        logLevel = logging.Split(':')[1];
+                    }
+                    else
+                    {
+                        string logging = args[i + 1].ToLower();
+                        logOutput = logging.Split(':')[0];
+                        logLevel = logging.Split(':')[1];
+                    }
                 }
             }
+        }
+        catch (Exception)
+        {
+            // Unsupported logging string
         }
 
         return (logOutput, logLevel);
     }
 
-    private static string? GetInformationalVersion() => Assembly
-        .GetEntryAssembly()
-        ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-        ?.InformationalVersion;
+    private static string? GetInformationalVersion()
+    {
+        return Assembly.GetEntryAssembly()?
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
+    }
 }
