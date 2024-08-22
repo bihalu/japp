@@ -1,6 +1,5 @@
 using japp.lib;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Serilog;
 using System.CommandLine;
 
