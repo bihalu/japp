@@ -1,6 +1,7 @@
 using japp.lib;
 using japp.lib.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Serilog;
 using System.CommandLine;
 
@@ -84,7 +85,8 @@ public class Config : Command
             myConfig = new ConfigModel();
         }
 
-        log.Debug("New config: {@myConfig}", myConfig);
+        var jsonConfig = JsonConvert.SerializeObject(myConfig, Formatting.Indented);
+        log.Information("Config file: {path}\n {config}", Helper.GetConfigPath(), jsonConfig);
 
         return 0;
     }

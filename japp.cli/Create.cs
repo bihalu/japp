@@ -10,47 +10,22 @@ public class Create : Command
     private readonly ILogger log;
     private readonly IConfiguration config;
 
-    public Create(ILogger log, IConfiguration config) : base("create", "Create package template")
+    public Create(ILogger log, IConfiguration config) : base("create", "Create japp package template")
     {
         this.log = log;
         this.config = config;
 
-        Option template = new Option<string>(["--template", "-t"], "Name [batch, package or helm]")
+        Option output = new Option<string>(["--output", "-o"], "Output folder")
         {
             IsRequired = false
         };
-        AddOption(template);
+        AddOption(output);
 
-        this.SetHandler((string template) => HandleCreate(template), template);
+        this.SetHandler((string output) => HandleCreate(output), output);
     }
 
-    private int HandleCreate(string template)
+    private int HandleCreate(string output)
     {
-        var myConfig = Helper.BindConfig(config);
-
-        switch (template)
-        {
-            case "batch":
-                break;
-
-            case "package":
-                break;
-
-            case "helm":
-                break;
-
-            default:
-                log.Warning("Unkown template {template}, fallback to batch", template);
-                template = "batch";
-                break;
-        }
-
-        log.Debug("Create template for {template}", template);
-
-        // package.yml
-        // logo.png
-        // docs/readme.md
-
-        return 0;
+        return new Japp(log, config).Create(output);
     }
 }

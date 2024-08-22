@@ -152,7 +152,7 @@ public static class Helper
 
         if (!File.Exists(userConfig))
         {
-            var newConfig = JsonConvert.SerializeObject(new ConfigModel());
+            var newConfig = JsonConvert.SerializeObject(new ConfigModel(), Formatting.Indented);
             File.WriteAllText(userConfig, newConfig);
         }
 
@@ -161,7 +161,7 @@ public static class Helper
 
     public static bool SaveConfig(ConfigModel config)
     {
-        var newConfig = JsonConvert.SerializeObject(config);
+        var newConfig = JsonConvert.SerializeObject(config, Formatting.Indented);
         File.WriteAllText(GetConfigPath(), newConfig);
 
         return true;

@@ -1,0 +1,26 @@
+apiVersion: japp/v1
+name: jappexample
+description: Japp package template
+version: 1.0
+files:
+  readme: README.md
+  japp: japp
+containers:
+- registry: docker.io
+  image: rancher/cowsay
+  tag: latest
+- registry: docker.io
+  image: library/hello-world
+  tag: latest
+#install:
+#  tasks:
+#  - command: "echo Hello Japp"
+#  - command: "podman run docker.io/rancher/cowsay mooo"
+#  - command: "cat readme.txt"
+#update:
+#  tasks:
+#  - command: "echo update tasks..."
+#delete:
+#  tasks:
+#  - command: "echo delete tasks..."
+

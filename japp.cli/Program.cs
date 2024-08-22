@@ -11,7 +11,7 @@ namespace japp.cli;
 
 class Program
 {
-    public static async Task Main(string[] args)
+    public static async System.Threading.Tasks.Task Main(string[] args)
     {
         // Root command
         var rootCommand = new RootCommand
@@ -50,6 +50,7 @@ class Program
         // Add sub commands
         rootCommand.AddCommand(new Config(log, config));
         rootCommand.AddCommand(new Create(log, config));
+        rootCommand.AddCommand(new Build(log, config));
         rootCommand.AddCommand(new Pull(log, config));
 
         await rootCommand.InvokeAsync(args);
