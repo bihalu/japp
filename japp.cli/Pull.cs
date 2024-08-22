@@ -33,9 +33,11 @@ public class Pull : Command
         var myConfig = Helper.BindConfig(config);
 
         string registry = myConfig.Registry;
+        string options = myConfig.TlsVerify ? "" : "--tls-verify=false";
+        string temp = Path.Combine(myConfig.TempFolder, Guid.NewGuid().ToString("N"));
 
         // Pull container image
-        var pullResult = Helper.RunCommand(log, $"podman pull {registry}/{package}");
+        var pullResult = Helper.RunCommand(log, $"podman pull {options} {registry}/{package}");
         if (pullResult.returncode != 0) return pullResult.returncode;
 
         // Inspect container image
@@ -51,23 +53,8 @@ public class Pull : Command
         string graphDriverName = containerImage.GraphDriver.Name;
         string upperDir = containerImage.GraphDriver.Data.UpperDir;
 
-        // List container image content
-        var listResult = Helper.RunCommand(this.log, $"ls -la {upperDir}");
-
-        // Create output folder
-        if (!string.IsNullOrEmpty(output))
-        {
-            if (!Directory.Exists(output)) Directory.CreateDirectory(output);
-
-            if (Directory.EnumerateFileSystemEntries(output).Any())
-            {
-                this.log.Warning("Output folder {output} is not empty", output);
-                return 1;
-            }
-
-            // Copy content to output folder
-
-        }
+        // Save container image
+        var saveResult = Helper.RunCommand(this.log, $"podman save --format=docker-dir {registry}/{package} --output {temp}");
 
         return 0;
     }
