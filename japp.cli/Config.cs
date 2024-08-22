@@ -34,16 +34,23 @@ public class Config : Command
         };
         AddOption(cleanup);
 
+        Option tlsVerify = new Option<bool?>(["--tls-verify"], "Set tls verify")
+        {
+            IsRequired = false
+        };
+        AddOption(tlsVerify);
+
         Option reset = new Option<bool>(["--reset"], "Reset default config")
         {
             IsRequired = false
         };
         AddOption(reset);
 
-        this.SetHandler((string registry, string temp, bool? cleanup, bool reset) => HandleConfig(registry, temp, cleanup, reset), registry, temp, cleanup, reset);
+        this.SetHandler((string registry, string temp, bool? cleanup, bool? tlsVerify, bool reset) => 
+            HandleConfig(registry, temp, cleanup, tlsVerify, reset), registry, temp, cleanup, tlsVerify, reset);
     }
 
-    private int HandleConfig(string registry, string temp, bool? cleanup, bool reset)
+    private int HandleConfig(string registry, string temp, bool? cleanup, bool? tlsVerify, bool reset)
     {
         var myConfig = Helper.BindConfig(config);
 
@@ -62,6 +69,12 @@ public class Config : Command
         if (null != cleanup)
         {
             myConfig.Cleanup = (bool)cleanup;
+            Helper.SaveConfig(myConfig);
+        }
+
+        if (null != tlsVerify)
+        {
+            myConfig.TlsVerify = (bool)tlsVerify;
             Helper.SaveConfig(myConfig);
         }
 
