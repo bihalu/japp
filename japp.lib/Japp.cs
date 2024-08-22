@@ -102,37 +102,6 @@ public class Japp : IJapp
 
         // Read package.yml
         PackageModel package;
-
-        if (false)
-        {
-            package = new()
-            {
-                ApiVersion = "japp/v1_alpha",
-                Name = "jappexample",
-                Description = "Japp package template",
-                Version = "1.0",
-                Files = new Dictionary<string, string>()
-                {
-                    {"readme", "README.md"}
-                },
-                Containers = new List<Container>()
-                {
-                    new Container()
-                    {
-                        Registry = "docker.io",
-                        Image = "rancher/cowsay",
-                        Tag = "latest",
-                    }
-                }
-            };
-
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-            var yaml = serializer.Serialize(package);
-            log.Debug("Yaml:\n{yaml}", yaml);
-        }
-
         string packageYml = Path.Combine(packageFolder, "package.yml");
         if (!File.Exists(packageYml))
         {
@@ -154,18 +123,20 @@ public class Japp : IJapp
             }
             catch (Exception exception)
             {
-                log.Error("Invalid japp package {package}, {error}", packageYml, exception.Message);
+                log.Error("Invalid japp package {package} => {error}", packageYml, exception.Message);
                 return 3;
             }
         }
 
-        // check files list
+        // Check package file list
+        string packageFiles = string.Empty;
         if (null != package.Files)
         {
             foreach (var file in package.Files!)
             {
                 if (File.Exists(file.Value))
                 {
+                    packageFiles += file.Value + " ";
                     log.Debug("Add file {file}={name} to japp package", file.Key, file.Value);
                 }
                 else
@@ -176,11 +147,45 @@ public class Japp : IJapp
             }
         }
 
-        // pull container images
-        // create Dockerfile
-        // -> set annotation japp apiversion
-        // -> copy package.yml docs/README.md logo.png and all files
-        // podman build
+        // Pull container images
+        if (null != package.Containers)
+        {
+            foreach (var container in package.Containers)
+            {
+                string containerImage = $"{container.Registry}/{container.Image}:{container.Tag}";
+                var pullResult = Helper.RunCommand(log, $"podman pull {containerImage}");
+
+                if (pullResult.returncode != 0) 
+                {
+                    log.Error("Error pulling image {image} => {error}", containerImage, pullResult.stderr);
+                    return pullResult.returncode;
+                }
+            }
+        }
+
+        // Create Dockerfile
+        string dockerfile = Path.Combine(packageFolder, "Dockerfile");
+        StringBuilder docker = new();
+        docker.AppendLine("FROM scratch");
+        docker.AppendFormat("COPY package.yml docs/README.md logo.png {0}/\n", packageFiles);
+        docker.AppendFormat("LABEL japp=\"{0}\"\n", package.ApiVersion);
+        docker.Append("CMD [\"/jappinfo\"]");
+
+        File.WriteAllText(dockerfile, docker.ToString());
+        log.Debug("{dockerfile}:\n{docker}", dockerfile, docker.ToString());
+        
+        // Build japp package with podman build
+        string tag = $"{myConfig.Registry}/{package.Name}:{package.Version}";
+        var buildResult = Helper.RunCommand(log, $"podman build -t {tag} .");
+
+        // Delete Dockerfile
+        File.Delete(dockerfile);
+
+        if (buildResult.returncode != 0) 
+        {
+            log.Error("Error build image {tag} => {error}", tag, buildResult.stderr);
+            return buildResult.returncode;
+        }
 
         return 0;
     }
@@ -207,7 +212,7 @@ public class Japp : IJapp
         string graphDriverName = containerImage.GraphDriver.Name;
         string upperDir = containerImage.GraphDriver.Data.UpperDir;
 
-        // Check annotations -> japp package version
+        // Check label -> japp package version
 
         // Save container image
         var saveResult = Helper.RunCommand(log, $"podman save --format=docker-dir {registry}/{package} --output {temp}");

@@ -1,17 +1,16 @@
 apiVersion: japp/v1
-name: jappexample
+name: japp/example
 description: Japp package template
 version: 1.0
 files:
-  readme: README.md
-  japp: japp
+#  readme: readme.txt
 containers:
 - registry: docker.io
   image: rancher/cowsay
   tag: latest
-- registry: docker.io
-  image: library/hello-world
-  tag: latest
+# - registry: docker.io
+#   image: library/hello-world
+#   tag: latest
 #install:
 #  tasks:
 #  - command: "echo Hello Japp"
@@ -23,4 +22,3 @@ containers:
 #delete:
 #  tasks:
 #  - command: "echo delete tasks..."
-
