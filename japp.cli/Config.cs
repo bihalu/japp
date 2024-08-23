@@ -53,6 +53,8 @@ public class Config : Command
 
     private int HandleConfig(string registry, string temp, bool? cleanup, bool? tlsVerify, bool reset)
     {
+        log.Debug("Config: registry={registry}, temp={temp}, cleanup={cleanup}, tlsVerify={tlsVerify}, reset={reset}", registry, temp, cleanup, tlsVerify, reset);
+
         var myConfig = Helper.BindConfig(config);
 
         if (!string.IsNullOrEmpty(registry))

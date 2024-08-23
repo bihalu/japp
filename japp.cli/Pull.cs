@@ -29,6 +29,8 @@ public class Pull : Command
 
     private int HandlePull(string package, string output)
     {
+        log.Debug("Pull: package={package}, output={output}", package, output);
+
         return new Japp(log, config).Pull(package, output);
     }
 }

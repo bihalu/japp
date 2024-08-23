@@ -26,6 +26,8 @@ public class Create : Command
 
     private int HandleCreate(string output)
     {
+        log.Debug("Create: output={output}", output);
+
         return new Japp(log, config).Create(output);
     }
 }

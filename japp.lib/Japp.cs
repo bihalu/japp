@@ -1,6 +1,8 @@
+using ICSharpCode.SharpZipLib.Tar;
 using japp.lib.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using System.Text;
 using YamlDotNet.Serialization;
@@ -28,10 +30,15 @@ public class Japp : IJapp
         {
             packageFolder = Directory.GetCurrentDirectory();
         }
-        if (!Directory.Exists(packageFolder)) Directory.CreateDirectory(packageFolder);
+
+        if (!Directory.Exists(packageFolder))
+        {
+            Directory.CreateDirectory(packageFolder);
+        }
 
         // package.yml
         string packageYml = Path.Combine(packageFolder, "package.yml");
+
         if (File.Exists(packageYml))
         {
             log.Warning("File {package} already exists, don't overwrite", packageYml);
@@ -46,6 +53,7 @@ public class Japp : IJapp
 
         // logo.png
         string logoPng = Path.Combine(packageFolder, "logo.png");
+
         if (File.Exists(logoPng))
         {
             log.Warning("File {logo} already exists, don't overwrite", logoPng);
@@ -55,33 +63,31 @@ public class Japp : IJapp
             log.Debug("Create file {logo}", logoPng);
             using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.logo.png")!;
             var length = stream.Length;
+
             if (length <= int.MaxValue)
             {
                 var result = new byte[length];
                 var bytesRead = stream.Read(result, 0, (int)length);
-                if (bytesRead == length) File.WriteAllBytes(logoPng, result);
+                if (bytesRead == length)
+                {
+                    File.WriteAllBytes(logoPng, result);
+                }
             }
         }
 
-        // docs/README.md
-        string docsFolder = Path.Combine(packageFolder, "docs");
-        string docsReadme = Path.Combine(packageFolder, "docs", "README.md");
-        if (File.Exists(docsReadme))
+        // README.md
+        string readmeMd = Path.Combine(packageFolder, "README.md");
+
+        if (File.Exists(readmeMd))
         {
-            log.Warning("File {logo} already exists, don't overwrite", docsReadme);
+            log.Warning("File {readme} already exists, don't overwrite", readmeMd);
         }
         else
         {
-            if (!Directory.Exists(docsFolder))
-            {
-                log.Debug("Create folder {docs}", docsFolder);
-                Directory.CreateDirectory(docsFolder);
-            }
-
-            log.Debug("Create file {readme}", docsReadme);
-            using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.docs.README.md")!;
+            log.Debug("Create file {readme}", readmeMd);
+            using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.README.md")!;
             var streamReader = new StreamReader(stream, Encoding.UTF8);
-            File.WriteAllText(docsReadme, streamReader.ReadToEnd());
+            File.WriteAllText(readmeMd, streamReader.ReadToEnd());
         }
 
         return 0;
@@ -94,18 +100,22 @@ public class Japp : IJapp
         {
             packageFolder = Directory.GetCurrentDirectory();
         }
+
         if (!Directory.Exists(packageFolder)) 
         {
             log.Error("Missing folder {folder}, can't build japp package", packageFolder);
+
             return 1;
         }
 
         // Read package.yml
         PackageModel package;
         string packageYml = Path.Combine(packageFolder, "package.yml");
+
         if (!File.Exists(packageYml))
         {
             log.Error("Missing file {package}, can't build japp package", packageYml);
+
             return 2;
         }
         else
@@ -124,12 +134,14 @@ public class Japp : IJapp
             catch (Exception exception)
             {
                 log.Error("Invalid japp package {package} => {error}", packageYml, exception.Message);
+
                 return 3;
             }
         }
 
         // Check package file list
         string packageFiles = string.Empty;
+
         if (null != package.Files)
         {
             foreach (var file in package.Files!)
@@ -142,6 +154,7 @@ public class Japp : IJapp
                 else
                 {
                     log.Error("Missing file {file}, can't build japp package", file.Value);
+
                     return 4;
                 }
             }
@@ -158,6 +171,7 @@ public class Japp : IJapp
                 if (pullResult.returncode != 0) 
                 {
                     log.Error("Error pulling image {image} => {error}", containerImage, pullResult.stderr);
+
                     return pullResult.returncode;
                 }
             }
@@ -165,11 +179,12 @@ public class Japp : IJapp
 
         // Create Dockerfile
         string dockerfile = Path.Combine(packageFolder, "Dockerfile");
+
         StringBuilder docker = new();
         docker.AppendLine("FROM scratch");
-        docker.AppendFormat("COPY package.yml docs/README.md logo.png {0}/\n", packageFiles);
+        docker.AppendFormat("COPY package.yml README.md logo.png {0}/\n", packageFiles);
         docker.AppendFormat("LABEL japp=\"{0}\"\n", package.ApiVersion);
-        docker.Append("CMD [\"/jappinfo\"]");
+        docker.Append("CMD [\"/jappinfo\"]"); // TODO build jappinfo binary
 
         File.WriteAllText(dockerfile, docker.ToString());
         log.Debug("{dockerfile}:\n{docker}", dockerfile, docker.ToString());
@@ -193,32 +208,96 @@ public class Japp : IJapp
     public int Pull(string package, string output)
     {
         string registry = myConfig.Registry;
-        string options = myConfig.TlsVerify ? "" : "--tls-verify=false ";
+        string options = myConfig.TlsVerify ? "" : "--tls-verify=false "; // Workaround for self signed registry cert
         string temp = Path.Combine(myConfig.TempFolder, Guid.NewGuid().ToString("N"));
 
         // Pull container image
         var pullResult = Helper.RunCommand(log, $"podman pull {options}{registry}/{package}");
-        if (pullResult.returncode != 0) return pullResult.returncode;
+
+        if (pullResult.returncode != 0) 
+        {
+            string error = pullResult.stderr.Split('\n').Last();
+            log.Error("{error}", error);
+
+            return pullResult.returncode;
+        }
 
         // Inspect container image
         var inspectResult = Helper.RunCommand(log, $"podman inspect {registry}/{package}");
-        if (inspectResult.returncode != 0) return inspectResult.returncode;
 
-        // Gather metadata
+        if (inspectResult.returncode != 0)
+        {
+            return inspectResult.returncode;
+        }
+
+        // Gather metadata: id, labels, layers, ...
         string json = inspectResult.stdout.TrimStart('[').TrimEnd('\n').TrimEnd('\r').TrimEnd(']');
         var containerImage = JsonConvert.DeserializeObject<dynamic>(json)!;
         string id = containerImage.Id;
-        var annotations = containerImage.Annotations;
-        string graphDriverName = containerImage.GraphDriver.Name;
-        string upperDir = containerImage.GraphDriver.Data.UpperDir;
+        JObject labels = containerImage.Labels;
+        JArray layers = containerImage.RootFS.Layers;
 
-        // Check label -> japp package version
+        // Check label -> japp package apiVersion
+        if (null == labels || labels.Count == 0)
+        {
+            log.Error("Missing label japp in package {package}, Not a japp package", package);
+
+            return 1;
+        }
+
+        string apiVersion = string.Empty;
+
+        foreach(JProperty property in labels.Children())
+        {
+            log.Debug("Label: {name}={value}", property.Name, property.Value.ToString());
+
+            // japp package must have label japp
+            if (property.Name == "japp")
+            {
+                apiVersion = property.Value.ToString();
+                log.Debug("found japp apiVersion {apiVersion}", apiVersion);
+                break;
+            }
+        }
+
+        if (apiVersion != "japp/v1")
+        {
+            log.Error("Invalid or missing japp api version in {package}, Not a japp package", package);
+
+            return 2;
+        }
+
+        string layer = layers[0].ToString().Replace("sha256:", ""); // japp package has exactly one layer
+
+        log.Debug("Package: name={package}", package);
+        log.Debug("Package: id={id}", id);
+        log.Debug("Package: apiVersion={apiVersion}", apiVersion);
+        log.Debug("Package: layer={layer}", layer);
 
         // Save container image
         var saveResult = Helper.RunCommand(log, $"podman save --format=docker-dir {registry}/{package} --output {temp}");
-        return saveResult.returncode;
 
-        // Copy japp package output
+        if (saveResult.returncode != 0)
+        {
+            return saveResult.returncode;
+        }
+
+        // Extract japp package
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            output = Directory.GetCurrentDirectory();
+        }
+
+        string sourceLayer = Path.Combine(temp, layer);
+        string outputFolder = Path.Combine(output, id);
+        
+        using Stream inStream = File.OpenRead(sourceLayer);
+        using TarArchive tarArchive = TarArchive.CreateInputTarArchive(inStream, Encoding.Default);
+        tarArchive.ExtractContents(outputFolder);
+        tarArchive.Close();
+        inStream.Close();
+        
+        return 0;
     }
 
     public int Push(string package)

@@ -26,6 +26,8 @@ public class Build : Command
 
     private int HandleBuild(string input)
     {
+        log.Debug("Build: input={input}", input);
+        
         return new Japp(log, config).Build(input);
     }
 }

@@ -45,13 +45,14 @@ class Program
 
         ILogger log = CreateLogger(args, myConfig);
         log.Debug("Version: {version}", GetInformationalVersion());
-        log.Debug("Config: {@myConfig}", myConfig);
+        log.Debug("Use config: {@myConfig}", myConfig);
 
         // Add sub commands
         rootCommand.AddCommand(new Config(log, config));
         rootCommand.AddCommand(new Create(log, config));
         rootCommand.AddCommand(new Build(log, config));
         rootCommand.AddCommand(new Pull(log, config));
+        rootCommand.AddCommand(new Push(log, config));
 
         await rootCommand.InvokeAsync(args);
     }
@@ -156,8 +157,6 @@ class Program
 
     private static string? GetInformationalVersion()
     {
-        return Assembly.GetEntryAssembly()?
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion;
+        return typeof(Japp).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
     }
 }

@@ -42,11 +42,11 @@ public static class Helper
 
                 if (command.Contains('"'))
                 {
-                    command = $"bash -c '{command}'";
+                    command = $"sh -c '{command}'";
                 }
                 else
                 {
-                    command = $"bash -c \"{command}\"";
+                    command = $"sh -c \"{command}\"";
                 }
             }
         }
