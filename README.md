@@ -7,9 +7,11 @@ Japp has a dependency on podman
 Please [install podman](https://podman.io/docs/installation) first  
 Then download the [japp binary](https://github.com/bihalu/japp/releases) from github release page
 ```
-apt install -y podman
+sudo apt install -y podman
 
+sudo curl -L -o /usr/local/bin/japp https://github.com/bihalu/japp/releases/download/v0.1.0-alpha0/japp
 
+sudo chmod +x /usr/local/bin/japp
 ```
 
 # Usage
@@ -202,6 +204,31 @@ Logout from registry
 ```
 $ japp logout
 [13:13:07 INF] Removed login credentials for 192.168.178.59:5000
+```
+
+# Build from source
+You need .net8.0 sdk and git  
+Example for building japp on debian 12
+```
+# install .net8.0 sdk -> see https://learn.microsoft.com/de-de/dotnet/core/install/linux-debian
+wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
+
+# install git
+sudo apt install -y git
+
+# clone japp repo
+git clone https://github.com/bihalu/japp.git
+cd japp
+
+# publish linux version
+dotnet publish --runtime linux-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
+
+# publish windows version
+dotnet publish --runtime win-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
 ```
 
 # Setup local registry
