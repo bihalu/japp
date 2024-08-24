@@ -7,7 +7,7 @@ Japp has a dependency on podman
 Please [install podman](https://podman.io/docs/installation) first  
 Then download the [japp binary](https://github.com/bihalu/japp/releases) from github release page
 ```
-sudo apt install -y podman
+sudo apt install -y podman curl
 
 sudo curl -L -o /usr/local/bin/japp https://github.com/bihalu/japp/releases/download/v0.1.0-alpha0/japp
 
