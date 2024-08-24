@@ -23,11 +23,11 @@ public class Config : Command
         };
         AddOption(registry);
 
-        Option temp = new Option<string>(["--temp", "-t"], "Set temp folder")
+        Option tempDir = new Option<string>(["--temp", "-t"], "Set temp directory")
         {
             IsRequired = false
         };
-        AddOption(temp);
+        AddOption(tempDir);
 
         Option cleanup = new Option<bool?>(["--cleanup", "-c"], "Set cleanup")
         {
@@ -47,13 +47,13 @@ public class Config : Command
         };
         AddOption(reset);
 
-        this.SetHandler((string registry, string temp, bool? cleanup, bool? tlsVerify, bool reset) => 
-            HandleConfig(registry, temp, cleanup, tlsVerify, reset), registry, temp, cleanup, tlsVerify, reset);
+        this.SetHandler((string registry, string tempDir, bool? cleanup, bool? tlsVerify, bool reset) => 
+            HandleConfig(registry, tempDir, cleanup, tlsVerify, reset), registry, tempDir, cleanup, tlsVerify, reset);
     }
 
-    private int HandleConfig(string registry, string temp, bool? cleanup, bool? tlsVerify, bool reset)
+    private int HandleConfig(string registry, string tempDir, bool? cleanup, bool? tlsVerify, bool reset)
     {
-        log.Debug("Config: registry={registry}, temp={temp}, cleanup={cleanup}, tlsVerify={tlsVerify}, reset={reset}", registry, temp, cleanup, tlsVerify, reset);
+        log.Debug("Config: registry={registry}, tempDir={tempDir}, cleanup={cleanup}, tlsVerify={tlsVerify}, reset={reset}", registry, tempDir, cleanup, tlsVerify, reset);
 
         var myConfig = Helper.BindConfig(config);
 
@@ -63,9 +63,9 @@ public class Config : Command
             Helper.SaveConfig(myConfig);
         }
 
-        if (!string.IsNullOrEmpty(temp))
+        if (!string.IsNullOrEmpty(tempDir))
         {
-            myConfig.TempFolder = temp;
+            myConfig.TempDir = tempDir;
             Helper.SaveConfig(myConfig);
         }
 

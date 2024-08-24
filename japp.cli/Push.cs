@@ -15,16 +15,16 @@ public class Push : Command
         this.log = log;
         this.config = config;
 
-        Argument package = new Argument<string>("package", "Package name");
-        AddArgument(package);
+        Argument packageName = new Argument<string>("package", "Package name");
+        AddArgument(packageName);
 
-        this.SetHandler((string package) => HandlePush(package), package);
+        this.SetHandler((string packageName) => HandlePush(packageName), packageName);
     }
 
-    private int HandlePush(string package)
+    private int HandlePush(string packageName)
     {
-        log.Debug("Push: package={package}", package);
+        log.Debug("Push: packageName={packageName}", packageName);
 
-        return new Japp(log, config).Push(package);
+        return new Japp(log, config).Push(packageName);
     }
 }

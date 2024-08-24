@@ -73,6 +73,26 @@
             "cwd": "${workspaceFolder}/japp.cli/bin/Debug/net8.0",
             "stopAtEntry": false,
             "console": "internalConsole"
+        },
+        {
+            "name": "japp --logging console:debug login -username admin -password 123456",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": ["--logging", "console:debug", "login", "--username", "admin", "--password", "123456"],
+            "cwd": "${workspaceFolder}/japp.cli/bin/Debug/net8.0",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "japp --logging console:debug logout",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": ["--logging", "console:debug", "logout"],
+            "cwd": "${workspaceFolder}/japp.cli/bin/Debug/net8.0",
+            "stopAtEntry": false,
+            "console": "internalConsole"
         }
     ]
 }

@@ -1,15 +1,16 @@
-using japp.lib.Models;
-using Serilog;
-
 namespace japp.lib;
 
 public interface IJapp
 {
-    public int Create(string packageFolder);
+    public int Create(string packageDir);
 
-    public int Build(string packageFolder);
+    public int Build(string packageDir);
 
-    public int Push(string package);
+    public int Pull(string packageName, string outputDir);
 
-    public int Pull(string package, string output);
+    public int Push(string packageName);
+
+    public int Login(string username, string password);
+
+    public int Logout();
 }

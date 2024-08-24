@@ -15,22 +15,22 @@ public class Pull : Command
         this.log = log;
         this.config = config;
 
-        Argument package = new Argument<string>("package", "Package name");
-        AddArgument(package);
+        Argument packageName = new Argument<string>("package", "Package name");
+        AddArgument(packageName);
 
-        Option output = new Option<string>(["--output", "-o"], "Output folder")
+        Option outputDir = new Option<string>(["--output", "-o"], "Output directory")
         {
             IsRequired = false
         };
-        AddOption(output);
+        AddOption(outputDir);
 
-        this.SetHandler((string package, string output) => HandlePull(package, output), package, output);
+        this.SetHandler((string packageName, string outputDir) => HandlePull(packageName, outputDir), packageName, outputDir);
     }
 
-    private int HandlePull(string package, string output)
+    private int HandlePull(string packageName, string outputDir)
     {
-        log.Debug("Pull: package={package}, output={output}", package, output);
+        log.Debug("Pull: packageName={packageName}, outputDir={output}", packageName, outputDir);
 
-        return new Japp(log, config).Pull(package, output);
+        return new Japp(log, config).Pull(packageName, outputDir);
     }
 }

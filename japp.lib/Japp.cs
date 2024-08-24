@@ -23,21 +23,21 @@ public class Japp : IJapp
         myConfig = Helper.BindConfig(config);
     }
 
-    public int Create(string packageFolder)
+    public int Create(string packageDir)
     {
-        // Package folder
-        if (string.IsNullOrWhiteSpace(packageFolder))
+        // Package dir
+        if (string.IsNullOrWhiteSpace(packageDir))
         {
-            packageFolder = Directory.GetCurrentDirectory();
+            packageDir = Directory.GetCurrentDirectory();
         }
 
-        if (!Directory.Exists(packageFolder))
+        if (!Directory.Exists(packageDir))
         {
-            Directory.CreateDirectory(packageFolder);
+            Directory.CreateDirectory(packageDir);
         }
 
         // package.yml
-        string packageYml = Path.Combine(packageFolder, "package.yml");
+        string packageYml = Path.Combine(packageDir, "package.yml");
 
         if (File.Exists(packageYml))
         {
@@ -45,14 +45,14 @@ public class Japp : IJapp
         }
         else
         {
-            log.Debug("Create file {package}", packageYml);
+            log.Information("Create file {package}", packageYml);
             using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.package.yml")!;
             var streamReader = new StreamReader(stream, Encoding.UTF8);
             File.WriteAllText(packageYml, streamReader.ReadToEnd());
         }
 
         // logo.png
-        string logoPng = Path.Combine(packageFolder, "logo.png");
+        string logoPng = Path.Combine(packageDir, "logo.png");
 
         if (File.Exists(logoPng))
         {
@@ -60,7 +60,7 @@ public class Japp : IJapp
         }
         else
         {
-            log.Debug("Create file {logo}", logoPng);
+            log.Information("Create file {logo}", logoPng);
             using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.logo.png")!;
             var length = stream.Length;
 
@@ -76,7 +76,7 @@ public class Japp : IJapp
         }
 
         // README.md
-        string readmeMd = Path.Combine(packageFolder, "README.md");
+        string readmeMd = Path.Combine(packageDir, "README.md");
 
         if (File.Exists(readmeMd))
         {
@@ -84,7 +84,7 @@ public class Japp : IJapp
         }
         else
         {
-            log.Debug("Create file {readme}", readmeMd);
+            log.Information("Create file {readme}", readmeMd);
             using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.README.md")!;
             var streamReader = new StreamReader(stream, Encoding.UTF8);
             File.WriteAllText(readmeMd, streamReader.ReadToEnd());
@@ -93,24 +93,24 @@ public class Japp : IJapp
         return 0;
     }
 
-    public int Build(string packageFolder)
+    public int Build(string packageDir)
     {
-        // Check package folder
-        if (string.IsNullOrWhiteSpace(packageFolder))
+        // Check package dir
+        if (string.IsNullOrWhiteSpace(packageDir))
         {
-            packageFolder = Directory.GetCurrentDirectory();
+            packageDir = Directory.GetCurrentDirectory();
         }
 
-        if (!Directory.Exists(packageFolder)) 
+        if (!Directory.Exists(packageDir)) 
         {
-            log.Error("Missing folder {folder}, can't build japp package", packageFolder);
+            log.Error("Missing package dir {packageDir}, can't build japp package", packageDir);
 
             return 1;
         }
 
         // Read package.yml
         PackageModel package;
-        string packageYml = Path.Combine(packageFolder, "package.yml");
+        string packageYml = Path.Combine(packageDir, "package.yml");
 
         if (!File.Exists(packageYml))
         {
@@ -149,7 +149,7 @@ public class Japp : IJapp
                 if (File.Exists(file.Value))
                 {
                     packageFiles += file.Value + " ";
-                    log.Debug("Add file {file}={name} to japp package", file.Key, file.Value);
+                    log.Information("Add file {file}={name} to japp package", file.Key, file.Value);
                 }
                 else
                 {
@@ -166,19 +166,20 @@ public class Japp : IJapp
             foreach (var container in package.Containers)
             {
                 string containerImage = $"{container.Registry}/{container.Image}:{container.Tag}";
+
+                log.Information("Pull container image {containerImage}", containerImage);
+
                 var pullResult = Helper.RunCommand(log, $"podman pull {containerImage}");
 
                 if (pullResult.returncode != 0) 
                 {
-                    log.Error("Error pulling image {image} => {error}", containerImage, pullResult.stderr);
-
                     return pullResult.returncode;
                 }
             }
         }
 
         // Create Dockerfile
-        string dockerfile = Path.Combine(packageFolder, "Dockerfile");
+        string dockerfile = Path.Combine(packageDir, "Dockerfile");
 
         StringBuilder docker = new();
         docker.AppendLine("FROM scratch");
@@ -191,6 +192,9 @@ public class Japp : IJapp
         
         // Build japp package with podman build
         string tag = $"{myConfig.Registry}/{package.Name}:{package.Version}";
+
+        log.Information("Build japp package {tag}", tag);
+
         var buildResult = Helper.RunCommand(log, $"podman build -t {tag} .");
 
         // Delete Dockerfile
@@ -198,32 +202,28 @@ public class Japp : IJapp
 
         if (buildResult.returncode != 0) 
         {
-            log.Error("Error build image {tag} => {error}", tag, buildResult.stderr);
             return buildResult.returncode;
         }
 
         return 0;
     }
 
-    public int Pull(string package, string output)
+    public int Pull(string packageName, string outputDir)
     {
         string registry = myConfig.Registry;
         string options = myConfig.TlsVerify ? "" : "--tls-verify=false "; // Workaround for self signed registry cert
-        string temp = Path.Combine(myConfig.TempFolder, Guid.NewGuid().ToString("N"));
+        string tempDir = Path.Combine(myConfig.TempDir, Guid.NewGuid().ToString("N"));
 
         // Pull container image
-        var pullResult = Helper.RunCommand(log, $"podman pull {options}{registry}/{package}");
+        var pullResult = Helper.RunCommand(log, $"podman pull {options}{registry}/{packageName}");
 
         if (pullResult.returncode != 0) 
         {
-            string error = pullResult.stderr.Split('\n').Last();
-            log.Error("{error}", error);
-
             return pullResult.returncode;
         }
 
         // Inspect container image
-        var inspectResult = Helper.RunCommand(log, $"podman inspect {registry}/{package}");
+        var inspectResult = Helper.RunCommand(log, $"podman inspect {registry}/{packageName}");
 
         if (inspectResult.returncode != 0)
         {
@@ -240,7 +240,7 @@ public class Japp : IJapp
         // Check label -> japp package apiVersion
         if (null == labels || labels.Count == 0)
         {
-            log.Error("Missing label japp in package {package}, Not a japp package", package);
+            log.Error("Missing label japp in package {package}, Not a japp package", packageName);
 
             return 1;
         }
@@ -255,27 +255,27 @@ public class Japp : IJapp
             if (property.Name == "japp")
             {
                 apiVersion = property.Value.ToString();
-                log.Debug("found japp apiVersion {apiVersion}", apiVersion);
+                log.Debug("Found japp apiVersion: {apiVersion}", apiVersion);
                 break;
             }
         }
 
         if (apiVersion != "japp/v1")
         {
-            log.Error("Invalid or missing japp api version in {package}, Not a japp package", package);
+            log.Error("Invalid or missing japp api version in {package}, Not a japp package", packageName);
 
             return 2;
         }
 
         string layer = layers[0].ToString().Replace("sha256:", ""); // japp package has exactly one layer
 
-        log.Debug("Package: name={package}", package);
+        log.Debug("Package: name={package}", packageName);
         log.Debug("Package: id={id}", id);
         log.Debug("Package: apiVersion={apiVersion}", apiVersion);
         log.Debug("Package: layer={layer}", layer);
 
         // Save container image
-        var saveResult = Helper.RunCommand(log, $"podman save --format=docker-dir {registry}/{package} --output {temp}");
+        var saveResult = Helper.RunCommand(log, $"podman save --format=docker-dir {registry}/{packageName} --output {tempDir}");
 
         if (saveResult.returncode != 0)
         {
@@ -283,25 +283,55 @@ public class Japp : IJapp
         }
 
         // Extract japp package
-        if (string.IsNullOrWhiteSpace(output))
+        if (string.IsNullOrWhiteSpace(outputDir))
         {
-            output = Directory.GetCurrentDirectory();
+            outputDir = Directory.GetCurrentDirectory();
         }
 
-        string sourceLayer = Path.Combine(temp, layer);
-        string outputFolder = Path.Combine(output, id);
-        
-        using Stream inStream = File.OpenRead(sourceLayer);
-        using TarArchive tarArchive = TarArchive.CreateInputTarArchive(inStream, Encoding.Default);
-        tarArchive.ExtractContents(outputFolder);
+        string sourceLayer = Path.Combine(tempDir, layer);
+        string destinationDir = Path.Combine(outputDir, id);
+
+        using Stream inputStream = File.OpenRead(sourceLayer);
+        using TarArchive tarArchive = TarArchive.CreateInputTarArchive(inputStream, Encoding.Default);
+        tarArchive.ExtractContents(destinationDir);
         tarArchive.Close();
-        inStream.Close();
-        
+        inputStream.Close();
+
+        log.Information("Package {packageName} pulled to {destinationDir}", packageName, destinationDir);
+
         return 0;
     }
 
-    public int Push(string package)
+    public int Push(string packageName)
     {
         throw new NotImplementedException();
+    }
+
+    public int Login(string username, string password)
+    {
+        string registry = myConfig.Registry;
+
+        var loginResult = Helper.RunCommand(log, $"podman login {registry} --username {username} --password {password}");
+
+        if (loginResult.returncode == 0)
+        {
+            log.Information("{result}", loginResult.stdout);
+        }
+
+        return loginResult.returncode;
+    }
+
+    public int Logout()
+    {
+        string registry = myConfig.Registry;
+
+        var logoutResult = Helper.RunCommand(log, $"podman logout {registry}");
+
+        if (logoutResult.returncode == 0)
+        {
+            log.Information("{result}", logoutResult.stdout);
+        }
+
+        return logoutResult.returncode;
     }
 }

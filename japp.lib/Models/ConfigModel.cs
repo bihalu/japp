@@ -4,7 +4,7 @@ public class ConfigModel
 {
     public string Registry { get; set; }
 
-    public string TempFolder { get; set; }
+    public string TempDir { get; set; }
 
     public bool Cleanup { get; set; }
 
@@ -15,10 +15,10 @@ public class ConfigModel
         //Registry = "docker.io";
         Registry = "192.168.178.59:5000";
 
-        TempFolder = Path.Combine(Path.GetTempPath(), "japp");
-        if (!Directory.Exists(TempFolder))
+        TempDir = Path.Combine(Path.GetTempPath(), "japp");
+        if (!Directory.Exists(TempDir))
         {
-            Directory.CreateDirectory(TempFolder);
+            Directory.CreateDirectory(TempDir);
         };
 
         Cleanup = false;

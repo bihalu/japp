@@ -15,19 +15,19 @@ public class Create : Command
         this.log = log;
         this.config = config;
 
-        Option output = new Option<string>(["--output", "-o"], "Output folder")
+        Option outputDir = new Option<string>(["--output", "-o"], "Output directory")
         {
             IsRequired = false
         };
-        AddOption(output);
+        AddOption(outputDir);
 
-        this.SetHandler((string output) => HandleCreate(output), output);
+        this.SetHandler((string outputDir) => HandleCreate(outputDir), outputDir);
     }
 
-    private int HandleCreate(string output)
+    private int HandleCreate(string outputDir)
     {
-        log.Debug("Create: output={output}", output);
+        log.Debug("Create: outputDir={outputDir}", outputDir);
 
-        return new Japp(log, config).Create(output);
+        return new Japp(log, config).Create(outputDir);
     }
 }

@@ -56,7 +56,7 @@ Usage:
 
 Options:
   -r, --registry <registry>  Set registry
-  -t, --temp <temp>          Set temp folder
+  -t, --temp <temp>          Set temp dircevtory
   -c, --cleanup              Set cleanup
   --tls-verify               Set tls verify
   --reset                    Reset default config

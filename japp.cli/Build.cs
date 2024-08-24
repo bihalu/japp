@@ -15,19 +15,19 @@ public class Build : Command
         this.log = log;
         this.config = config;
 
-        Option input = new Option<string>(["--input", "-i"], "Input folder")
+        Option packageDir = new Option<string>(["--input", "-i"], "Input package directory, if omitted use current directory")
         {
             IsRequired = false
         };
-        AddOption(input);
+        AddOption(packageDir);
 
-        this.SetHandler((string input) => HandleBuild(input), input);
+        this.SetHandler((string packageDir) => HandleBuild(packageDir), packageDir);
     }
 
-    private int HandleBuild(string input)
+    private int HandleBuild(string packageDir)
     {
-        log.Debug("Build: input={input}", input);
+        log.Debug("Build: packageDir={packageDir}", packageDir);
         
-        return new Japp(log, config).Build(input);
+        return new Japp(log, config).Build(packageDir);
     }
 }

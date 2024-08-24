@@ -11,7 +11,7 @@ namespace japp.cli;
 
 class Program
 {
-    public static async System.Threading.Tasks.Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
         // Root command
         var rootCommand = new RootCommand
@@ -53,6 +53,8 @@ class Program
         rootCommand.AddCommand(new Build(log, config));
         rootCommand.AddCommand(new Pull(log, config));
         rootCommand.AddCommand(new Push(log, config));
+        rootCommand.AddCommand(new Login(log, config));
+        rootCommand.AddCommand(new Logout(log, config));
 
         await rootCommand.InvokeAsync(args);
     }
@@ -71,7 +73,7 @@ class Program
                 break;
 
             case "file":
-                string logFile = Path.Combine(config.TempFolder, "japp.log");
+                string logFile = Path.Combine(config.TempDir, "japp.log");
                 loggerConfiguration.WriteTo.File(logFile);
                 break;
 

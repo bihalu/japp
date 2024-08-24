@@ -11,15 +11,15 @@ namespace japp.lib;
 
 public static class Helper
 {
-    public static (int returncode, string stdout, string stderr) RunCommand(ILogger log, string command, bool useShell = false, string? dir = null)
+    public static (int returncode, string stdout, string stderr) RunCommand(ILogger log, string command, bool useShell = false, string? workingDir = null)
     {
         int returncode = 0;
         string stdout = string.Empty;
         string stderr = string.Empty;
 
-        if (string.IsNullOrEmpty(dir))
+        if (string.IsNullOrEmpty(workingDir))
         {
-            dir = Environment.CurrentDirectory;
+            workingDir = Environment.CurrentDirectory;
         }
 
         // Wrap command in shell
@@ -60,7 +60,24 @@ public static class Helper
             command = command[..i];
         }
 
-        log.Debug("Command: {command} {args}", command, args);
+        // Reduct password in args
+        string reductedArgs = string.Empty;
+        bool reduct = false;
+        foreach (var arg in args.Split(' '))
+        {
+            if (reduct)
+            {
+                reductedArgs += new string('*', arg.Length) + ' ';
+            }
+            else
+            {
+                reductedArgs += arg + ' ';
+            }
+
+            reduct = arg.Contains("password", StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        log.Debug("Command: {command} {args}", command, reductedArgs);
 
         // Set process start info
         ProcessStartInfo processStartInfo = new()
@@ -69,7 +86,7 @@ public static class Helper
             CreateNoWindow = true, // No Window
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            WorkingDirectory = dir,
+            WorkingDirectory = workingDir,
             FileName = command,
             Arguments = args
         };
@@ -128,11 +145,16 @@ public static class Helper
             
             if (returncode == 0)
             {
-                log.Information("Command: {command} {args} (Returncode: {returncode}, Duration: {elapsed})", command, args, returncode, stopwatch.Elapsed);
+                log.Debug("Command: {command} {args} (Returncode: {returncode}, Duration: {elapsed})", command, reductedArgs, returncode, stopwatch.Elapsed);
             }
             else
             {
-                log.Error("Command: {command} {args} (Returncode: {returncode}, Duration: {elapsed})", command, args, returncode, stopwatch.Elapsed);
+                foreach (var error in stderr.Split('\n'))
+                {
+                    log.Error("{error}", error);
+                }
+
+                log.Error("Command: {command} {args} (Returncode: {returncode}, Duration: {elapsed})", command, reductedArgs, returncode, stopwatch.Elapsed);
             }
         };
 
@@ -143,20 +165,20 @@ public static class Helper
     {
         var userProfile = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
         var userDir = Path.Combine(userProfile.FullName, ".japp");
-        var userConfig = Path.Combine(userDir, "config.json");
+        var userConfigPath = Path.Combine(userDir, "config.json");
 
         if (!Directory.Exists(userDir))
         {
             Directory.CreateDirectory(userDir);
         };
 
-        if (!File.Exists(userConfig))
+        if (!File.Exists(userConfigPath))
         {
             var newConfig = JsonConvert.SerializeObject(new ConfigModel(), Formatting.Indented);
-            File.WriteAllText(userConfig, newConfig);
+            File.WriteAllText(userConfigPath, newConfig);
         }
 
-        return userConfig;
+        return userConfigPath;
     }
 
     public static bool SaveConfig(ConfigModel config)
