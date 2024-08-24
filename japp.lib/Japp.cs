@@ -195,7 +195,7 @@ public class Japp : IJapp
 
         log.Information("Build japp package {tag}", tag);
 
-        var buildResult = Helper.RunCommand(log, $"podman build -t {tag} .");
+        var buildResult = Helper.RunCommand(log, $"podman build -t {tag} {packageDir}");
 
         // Delete Dockerfile
         File.Delete(dockerfile);

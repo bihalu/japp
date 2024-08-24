@@ -151,7 +151,7 @@ class Program
         }
         catch (Exception)
         {
-            // Unsupported logging string
+            // Ignore unsupported logging string
         }
 
         return (logOutput, logLevel);
