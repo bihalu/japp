@@ -172,13 +172,20 @@ $ japp build --input mypackage
 ```
 
 ### pull
+Pull japp package japp/example:1.0 to output directory mypackage
+> If you ommit output directory then the package is pulled in the current directory  
+> The long sub directory name is the unique package id
+```
+$ japp pull japp/example:1.0 --output mypackage
+[13:27:09 INF] Package japp/example:1.0 pulled to mypackage\93d183809f4706f25ee981dc25751a8d17eb976cfea9a9db093e3a66d9fd276a
+```
 
 ### push
 Push japp package to registry  
 > Make sure you have built the package before
 ```
 $ japp push japp/example:1.0
-Unhandled exception: System.NotImplementedException: The method or operation is not implemented.
+Unhandled exception: System.NotImplementedException: The method or operation is not implemented. ;-)
 ```
 
 ### login
@@ -196,6 +203,9 @@ Logout from registry
 $ japp logout
 [13:13:07 INF] Removed login credentials for 192.168.178.59:5000
 ```
+
+# Setup local registry
+TODO descripe how to setup a local registry
 
 # Trusted certificate
 TODO describe how to accept self signed certificate from registry

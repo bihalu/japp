@@ -71,6 +71,8 @@ public class Login : Command
             }
         }
 
+        Console.WriteLine();
+
         return password;
     }
 }
