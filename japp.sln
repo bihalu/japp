@@ -3,17 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "japp.cli", "japp.cli\japp.cli.csproj", "{3F5EB3A5-9EEE-4D4E-A92D-DECF4A2443B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "japp.cli", "japp.cli\japp.cli.csproj", "{3F5EB3A5-9EEE-4D4E-A92D-DECF4A2443B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "japp.lib", "japp.lib\japp.lib.csproj", "{ECB6D010-1042-418A-B54F-276336B1D0D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "japp.lib", "japp.lib\japp.lib.csproj", "{ECB6D010-1042-418A-B54F-276336B1D0D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{B01D9F91-32AD-4F2C-A51D-F2D720AD83B7}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "japp.test", "japp.test\japp.test.csproj", "{17A25651-5313-4B41-8817-C03B628CC0DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3F5EB3A5-9EEE-4D4E-A92D-DECF4A2443B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +30,15 @@ Global
 		{ECB6D010-1042-418A-B54F-276336B1D0D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECB6D010-1042-418A-B54F-276336B1D0D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECB6D010-1042-418A-B54F-276336B1D0D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17A25651-5313-4B41-8817-C03B628CC0DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17A25651-5313-4B41-8817-C03B628CC0DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17A25651-5313-4B41-8817-C03B628CC0DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17A25651-5313-4B41-8817-C03B628CC0DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4A04DB0E-9179-4A64-96DD-DE0AB68515C6}
 	EndGlobalSection
 EndGlobal

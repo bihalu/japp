@@ -81,12 +81,12 @@ Default is **console:information**
 Any combination of log output and log level is supported  
 
 | log output  |
-| ----------- |
+| :---------- |
 | console     |
 | file        |
 
 | log level   |
-| ----------- |
+| :---------- |
 | verbose     |
 | debug       |
 | information |
@@ -147,8 +147,9 @@ $ japp config --reset
 ```
 
 default config values
+
 | name       | value                                            |
-| ---------- | ------------------------------------------------ |
+| :--------- | :----------------------------------------------- |
 | registry   | 192.168.178.59:5000                              |
 | cleanup    | false                                            |
 | temp       | /tmp/japp (on linux)<br>%TEMP%/japp (on windows) |
