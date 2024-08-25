@@ -1,0 +1,38 @@
+apiVersion: japp/v1
+name: japp/example
+description: Japp example package
+version: 1.0.0
+files:
+  foo: bar
+  bar: foo
+containers:
+- registry: docker.io
+  image: library/hello-world
+  tag: latest
+- registry: docker.io
+  image: library/nginx
+  tag: latest
+install:
+  tasks:
+  - name: Task1
+    description: Task1
+    command: echo Task1
+  - name: Task2
+    description: Task2
+    command: echo Task2
+update:
+  tasks:
+  - name: UpdateTask1
+    description: UpdateTask1
+    command: echo update task1
+  - name: UpdateTask2
+    description: UpdateTask2
+    command: echo update task2
+delete:
+  tasks:
+  - name: DeleteTask1
+    description: DeleteTask1
+    command: echo delete task1
+  - name: DeleteTask2
+    description: DeleteTask2
+    command: echo delete task2

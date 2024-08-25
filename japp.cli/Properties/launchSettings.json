@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "japp.cli": {
+      "commandName": "Project"
+    },
+    "japp create": {
+      "commandName": "Project",
+      "commandLineArgs": "--logging console:debug create"
+    }
+  }
+}

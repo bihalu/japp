@@ -1,0 +1,18 @@
+apiVersion: japp/v1
+name: japp/example
+description: Japp example package
+version: 1.0.0
+files:
+  foo: bar
+  bar: foo
+containers:
+- registry: docker.io
+  image: library/hello-world
+  tag: latest
+install:
+  tasks:
+  - name: Test
+    description: Test
+    command: echo Test
+update: 
+delete: 

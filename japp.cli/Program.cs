@@ -6,6 +6,7 @@ using Serilog.Core;
 using Serilog.Events;
 using System.CommandLine;
 using System.Reflection;
+using Task = System.Threading.Tasks.Task;
 
 namespace japp.cli;
 
