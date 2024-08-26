@@ -25,6 +25,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="package03.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="package02.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

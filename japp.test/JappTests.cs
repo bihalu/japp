@@ -52,7 +52,7 @@ namespace japp.test
         }
 
         [Fact]
-        public void SerializePackage01Yml()
+        public void SerializePackage01()
         {
             // Arrange
             PackageModel package = new()
@@ -87,7 +87,7 @@ namespace japp.test
                                 Command = "echo Test",
                             }
                         },
-                    }
+                    },
                 },
             };
 
@@ -103,7 +103,7 @@ namespace japp.test
         }
 
         [Fact]
-        public void SerializePackage02Yml()
+        public void SerializePackage02()
         {
             // Arrange
             PackageModel package = new()
@@ -152,7 +152,7 @@ namespace japp.test
                                 Command = "echo Task2",
                             }
                         },
-                    }
+                    },
                 },
                 Update = new()
                 {
@@ -174,7 +174,7 @@ namespace japp.test
                                 Command = "echo update task2",
                             }
                         },
-                    }
+                    },
                 },
                 Delete = new()
                 {
@@ -196,7 +196,7 @@ namespace japp.test
                                 Command = "echo delete task2",
                             }
                         },
-                    }
+                    },
                 },
             };
 
@@ -209,6 +209,79 @@ namespace japp.test
 
             // Assert
             Assert.Equal(File.ReadAllText("package02.yml"), yaml);
+        }
+
+        [Fact]
+        public void DeserializePackage03()
+        {
+            // Arrange
+            var yaml = File.ReadAllText("package03.yml");
+
+            // Act
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var package = deserializer.Deserialize<PackageModel>(yaml);
+
+            // Assert
+            Assert.Equal("japp/v1", package.ApiVersion);
+            Assert.Equal("japp/example", package.Name);
+            Assert.Equal("1.0", package.Version);
+            Assert.Equal("Japp package template", package.Description);
+            Assert.Null(package.Files);
+        }
+
+        [Fact]
+        public void PackageBuilderPackage01()
+        {
+            // Arrange
+            var expectedYaml = File.ReadAllText("package01.yml");
+
+            // Act
+            var builder = PackageBuilder.Initialize("japp/example", "1.0.0", "Japp example package");
+            builder.AddFile(name: "foo", path: "bar");
+            builder.AddFile(name: "bar", path: "foo");
+            builder.AddContainer(registry: "docker.io", image: "library/hello-world", tag: "latest");
+            builder.AddInstallTask(name: "Test", command: "echo Test", description: "Test");
+
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var actualYaml = serializer.Serialize(builder.package);
+
+            // Assert
+            Assert.Equal(expectedYaml, actualYaml);
+        }
+
+        [Fact]
+        public void PackageBuilderPackage02()
+        {
+            // Arrange
+            var expectedYaml = File.ReadAllText("package02.yml");
+
+            // Act
+            var builder = PackageBuilder.Initialize("japp/example", "1.0.0", "Japp example package");
+            builder.AddFile(name: "foo", path: "bar");
+            builder.AddFile(name: "bar", path: "foo");
+            builder.AddContainer(registry: "docker.io", image: "library/hello-world", tag: "latest");
+            builder.AddContainer(registry: "docker.io", image: "library/nginx", tag: "latest");
+            builder.AddInstallTask(name: "Task1", command: "echo Task1", description: "Task1");
+            builder.AddInstallTask(name: "Task2", command: "echo Task2", description: "Task2");
+            builder.AddUpdateTask(name: "UpdateTask1", command: "echo update task1", description: "UpdateTask1");
+            builder.AddUpdateTask(name: "UpdateTask2", command: "echo update task2", description: "UpdateTask2");
+            builder.AddDeleteTask(name: "DeleteTask1", command: "echo delete task1", description: "DeleteTask1");
+            builder.AddDeleteTask(name: "DeleteTask2", command: "echo delete task2", description: "DeleteTask2");
+
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var actualYaml = serializer.Serialize(builder.package);
+
+            // Assert
+            Assert.Equal(expectedYaml, actualYaml);
         }
     }
 }

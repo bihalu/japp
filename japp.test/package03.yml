@@ -1,0 +1,10 @@
+apiVersion: japp/v1
+name: japp/example
+version: 1.0
+description: Japp package template
+files:
+#  foo: bar
+containers:
+- registry: docker.io
+  image: rancher/cowsay
+  tag: latest
