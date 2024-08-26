@@ -5,6 +5,7 @@ using Serilog;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using Task = japp.lib.Models.Task;
+using japp.lib.Builder;
 
 namespace japp.test
 {

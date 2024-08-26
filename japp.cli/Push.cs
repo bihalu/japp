@@ -1,4 +1,4 @@
-using japp.lib;
+﻿using japp.lib;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.CommandLine;
@@ -10,7 +10,7 @@ public class Push : Command
     private readonly ILogger log;
     private readonly IConfiguration config;
 
-    public Push(ILogger log, IConfiguration config) : base("push", "Push package and images to registry")
+    public Push(ILogger log, IConfiguration config) : base("push", "Push package and container images to registry")
     {
         this.log = log;
         this.config = config;
@@ -18,13 +18,19 @@ public class Push : Command
         Argument packageName = new Argument<string>("package", "Package name");
         AddArgument(packageName);
 
-        this.SetHandler((string packageName) => HandlePush(packageName), packageName);
+        Option retag = new Option<bool>(["--retag", "-r"], "Retag and push container images")
+        {
+            IsRequired = false
+        };
+        AddOption(retag);
+
+        this.SetHandler((string packageName, bool retag) => HandlePush(packageName, retag), packageName, retag);
     }
 
-    private int HandlePush(string packageName)
+    private int HandlePush(string packageName, bool retag)
     {
-        log.Debug("Push: packageName={packageName}", packageName);
+        log.Debug("Push: packageName={packageName}, retag={retag}", packageName, retag);
 
-        return new Japp(log, config).Push(packageName);
+        return new Japp(log, config).Push(packageName, retag);
     }
 }

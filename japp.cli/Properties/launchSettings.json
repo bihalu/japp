@@ -6,6 +6,10 @@
     "japp create": {
       "commandName": "Project",
       "commandLineArgs": "--logging console:debug create"
+    },
+    "japp push japp/example:1.0 --retag": {
+      "commandName": "Project",
+      "commandLineArgs": "--logging console:debug push japp/example:1.0 --retag"
     }
   }
 }

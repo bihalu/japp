@@ -1,4 +1,4 @@
-﻿namespace japp.lib
+﻿namespace japp.lib.Builder
 {
     public static class PackageBuilderExtensions
     {
@@ -21,10 +21,12 @@
                 builder.package.Containers = new();
             }
 
-            builder.package.Containers.Add(new Models.Container() 
-            { 
-                Registry = registry, Image = image, Tag = tag
-            });                
+            builder.package.Containers.Add(new Models.Container()
+            {
+                Registry = registry,
+                Image = image,
+                Tag = tag
+            });
 
             return builder;
         }
@@ -33,7 +35,9 @@
         {
             builder.package!.Install.Tasks.Add(new Models.Task()
             {
-                Name = name, Command = command, Description = description
+                Name = name,
+                Command = command,
+                Description = description
             });
 
             return builder;

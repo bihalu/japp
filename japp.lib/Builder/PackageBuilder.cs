@@ -1,6 +1,6 @@
 ﻿using japp.lib.Models;
 
-namespace japp.lib
+namespace japp.lib.Builder
 {
     public class PackageBuilder
     {

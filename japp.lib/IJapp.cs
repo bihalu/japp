@@ -1,4 +1,4 @@
-namespace japp.lib;
+﻿namespace japp.lib;
 
 public interface IJapp
 {
@@ -8,7 +8,7 @@ public interface IJapp
 
     public int Pull(string packageName, string outputDir);
 
-    public int Push(string packageName);
+    public int Push(string packageName, bool retag);
 
     public int Login(string username, string password);
 
