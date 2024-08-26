@@ -187,8 +187,15 @@ $ japp pull japp/example:1.0 --output mypackage
 Push japp package to registry  
 > Make sure you have built the package before
 ```
-$ japp push japp/example:1.0
-Unhandled exception: System.NotImplementedException: The method or operation is not implemented. ;-)
+$ japp push japp/mypackage:1.0
+[13:33:42 INF] Push japp package 192.168.178.59:5000/japp/mypackage:1.0
+```
+
+With the option --retag all container images of the japp package are also pushed
+```
+$ japp push japp/mypackage:1.0 --retag
+[13:35:03 INF] Push japp package 192.168.178.59:5000/japp/mypackage:1.0
+[13:35:05 INF] Push container image 192.168.178.59:5000/rancher/cowsay:latest
 ```
 
 ### login

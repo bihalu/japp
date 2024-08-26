@@ -30,7 +30,7 @@ namespace japp.lib
                 return pushResult.returncode;
             }
 
-            log.Information("Push japp package {registry/{packageName}}", registry, packageName);
+            log.Information("Push japp package {registry}/{packageName}", registry, packageName);
 
             // Retag and push container images
             if (retagAndPush)
