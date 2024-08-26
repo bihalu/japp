@@ -30,6 +30,8 @@ namespace japp.lib
                 return pushResult.returncode;
             }
 
+            log.Information("Push japp package {registry/{packageName}}", registry, packageName);
+
             // Retag and push container images
             if (retagAndPush)
             {
@@ -83,6 +85,8 @@ namespace japp.lib
                         {
                             return pushContainerResult.returncode;
                         }
+
+                        log.Information("Push container image {destinationImage}", destinationImage);
                     }
                 }
             }

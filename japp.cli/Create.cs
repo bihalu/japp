@@ -1,4 +1,4 @@
-using japp.lib;
+﻿using japp.lib;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.CommandLine;
@@ -15,7 +15,7 @@ public class Create : Command
         this.log = log;
         this.config = config;
 
-        Option outputDir = new Option<string>(["--output", "-o"], "Output directory")
+        Option outputDir = new Option<string>(["--output", "-o"], "Output directory, if omitted use current directory")
         {
             IsRequired = false
         };

@@ -10,7 +10,7 @@ public class Push : Command
     private readonly ILogger log;
     private readonly IConfiguration config;
 
-    public Push(ILogger log, IConfiguration config) : base("push", "Push package and container images to registry")
+    public Push(ILogger log, IConfiguration config) : base("push", "Push japp package to registry")
     {
         this.log = log;
         this.config = config;
