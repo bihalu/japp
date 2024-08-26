@@ -232,6 +232,28 @@ sudo apt install -y git
 git clone https://github.com/bihalu/japp.git
 cd japp
 
+# build
+dotnet build
+  Wiederherzustellende Projekte werden ermittelt...
+  Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
+  japp.lib -> /root/japp/japp.lib/bin/Debug/net8.0/japp.lib.dll
+  japp.test -> /root/japp/japp.test/bin/Debug/net8.0/japp.test.dll
+  japp.cli -> /root/japp/japp.cli/bin/Debug/net8.0/japp.dll
+
+Der Buildvorgang wurde erfolgreich ausgeführt.
+    0 Warnung(en)
+    0 Fehler
+
+Verstrichene Zeit 00:00:02.49
+
+# test
+dotnet test
+...
+Die Testausführung wird gestartet, bitte warten...
+Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster überein.
+
+Bestanden!   : Fehler:     0, erfolgreich:     7, übersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
+
 # publish linux version
 dotnet publish --runtime linux-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
 
