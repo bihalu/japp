@@ -24,11 +24,11 @@ namespace japp.test
         public void CreateWithoutPackageDir()
         {
             // Arrange
-            string packageDir = null;
+            string? packageDir = null;
             var japp = new Japp(log, config);
 
             // Act
-            japp.Create(packageDir);
+            japp.Create(packageDir!);
 
             // Assert
             Assert.True(File.Exists("package.yml"));
