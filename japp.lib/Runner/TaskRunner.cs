@@ -41,6 +41,14 @@ namespace japp.lib.Runner
                     // Find first failed task or default
                     taskResult = resultCollection.Where(t => t.returncode > 0).FirstOrDefault();
                     index = resultCollection.Where(t => t.returncode == 0).Count();
+
+                    foreach (var item in resultCollection)
+                    {
+                        if (item.returncode == 0 && !string.IsNullOrWhiteSpace(item.stdout))
+                        {
+                            log.Information("\n{stdout}", taskResult.stdout);
+                        }
+                    }
                 }
             }
             else
