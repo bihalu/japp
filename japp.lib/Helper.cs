@@ -1,4 +1,4 @@
-using japp.lib.Models;
+﻿using japp.lib.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
@@ -138,6 +138,8 @@ public static class Helper
             }
             catch (Exception exception)
             {
+                returncode = 1;
+                stderr = exception.Message;
                 log.Error(exception.StackTrace!);
             }
 

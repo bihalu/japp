@@ -1,0 +1,15 @@
+apiVersion: japp/v1
+name: japp/test
+version: 1.0
+description: Japp package template
+install:
+  tasks:
+  - name: Test1
+    description: Test1
+    command: echo Test
+  - name: Test2
+    description: Test2
+    command: timeout 2
+  - name: Test3
+    description: Test3
+    command: echo Test

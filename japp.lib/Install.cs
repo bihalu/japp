@@ -65,8 +65,9 @@ namespace japp.lib
 
             // Task runner
             // TODO values for task runner
+            // TODO useShell
             var runner = new TaskRunner(log, myConfig);
-            int returncode = runner.Run(package.Install, packageDir);
+            int returncode = runner.Run(package.Install, packageDir, useShell: true);
 
             return returncode;
         }

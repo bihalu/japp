@@ -1,23 +1,39 @@
 ﻿using japp.lib;
+using japp.lib.Builder;
 using japp.lib.Models;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using System.Runtime.InteropServices;
+using Task = japp.lib.Models.Task;
+using Xunit.Abstractions;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
-using Task = japp.lib.Models.Task;
-using japp.lib.Builder;
+using Serilog.Events;
+using Serilog.Core;
 
 namespace japp.test
 {
-    public class JappTests : IClassFixture<Setup>
+    public class JappTests
     {
         private readonly ILogger log;
         private readonly IConfiguration config;
+        private LoggingLevelSwitch loggingLevelSwitch;
 
-        public JappTests(Setup setup)
+        public JappTests(ITestOutputHelper output)
         {
-            log = setup.log;
-            config = setup.config;
+            var userConfigPath = Helper.GetConfigPath();
+
+            config = new ConfigurationBuilder()
+                .AddJsonFile(userConfigPath, optional: false)
+                .Build();
+
+            loggingLevelSwitch = new LoggingLevelSwitch();
+            loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
+
+            log = new LoggerConfiguration()
+                .WriteTo.TestOutput(output)
+                .MinimumLevel.ControlledBy(loggingLevelSwitch)
+                .CreateLogger();
         }
 
         [Fact]
@@ -100,7 +116,7 @@ namespace japp.test
             var yaml = serializer.Serialize(package);
 
             // Assert
-            Assert.Equal(File.ReadAllText("package01.yml"), yaml);
+            Assert.Equal(File.ReadAllText("Test01/package01.yml"), yaml);
         }
 
         [Fact]
@@ -209,14 +225,14 @@ namespace japp.test
             var yaml = serializer.Serialize(package);
 
             // Assert
-            Assert.Equal(File.ReadAllText("package02.yml"), yaml);
+            Assert.Equal(File.ReadAllText("Test02/package02.yml"), yaml);
         }
 
         [Fact]
         public void DeserializePackage03()
         {
             // Arrange
-            var yaml = File.ReadAllText("package03.yml");
+            var yaml = File.ReadAllText("Test03/package03.yml");
 
             // Act
             var deserializer = new DeserializerBuilder()
@@ -237,7 +253,7 @@ namespace japp.test
         public void PackageBuilderPackage01()
         {
             // Arrange
-            var expectedYaml = File.ReadAllText("package01.yml");
+            var expectedYaml = File.ReadAllText("Test01/package01.yml");
 
             // Act
             var builder = PackageBuilder.Initialize(name: "japp/example", version: "1.0.0", description: "Japp example package");
@@ -260,7 +276,7 @@ namespace japp.test
         public void PackageBuilderPackage02()
         {
             // Arrange
-            var expectedYaml = File.ReadAllText("package02.yml");
+            var expectedYaml = File.ReadAllText("Test02/package02.yml");
 
             // Act
             var builder = PackageBuilder.Initialize(name: "japp/example", version: "1.0.0", description: "Japp example package");
@@ -283,6 +299,34 @@ namespace japp.test
 
             // Assert
             Assert.Equal(expectedYaml, actualYaml);
+        }
+
+        [Fact]
+        public void PackageInstallDirectory()
+        {
+            // Arrange
+            string packagePath = string.Empty;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                packagePath = "Test04/linux/package.yml";
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                packagePath = "Test04/windows/package.yml";
+            }
+
+            //loggingLevelSwitch.MinimumLevel = LogEventLevel.Debug;
+
+            string packageDir = Path.GetDirectoryName(packagePath);
+            var japp = new Japp(log, config);
+
+            // Act
+            int returncode = japp.Install("japp/test:1.0", /* no values */ null, packageDir);
+
+            // Assert
+            Assert.Equal(0, returncode);
         }
     }
 }
