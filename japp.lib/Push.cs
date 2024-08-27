@@ -52,17 +52,17 @@ namespace japp.lib
                 tarArchive.Close();
                 inputStream.Close();
 
-                string packageYml = Path.Combine(tempDir, "package.yml");
-                var yml = File.ReadAllText(packageYml);
-                log.Debug("{packageYaml}:\n{yaml}", packageYml, yml);
+                string packagePath = Path.Combine(tempDir, "package.yml");
+                var yaml = File.ReadAllText(packagePath);
+                log.Debug("{packagePath}:\n{yaml}", packagePath, yaml);
 
                 var deserializer = new DeserializerBuilder()
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .Build();
 
-                var package = deserializer.Deserialize<PackageModel>(File.ReadAllText(packageYml));
+                var package = deserializer.Deserialize<PackageModel>(File.ReadAllText(packagePath));
 
-                if (package.Containers != null && package.Containers.Any())
+                if (package.Containers != null && package.Containers.Count > 0)
                 {
                     // Retag and push all container images in japp package
                     foreach (var container in package!.Containers)

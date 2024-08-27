@@ -13,4 +13,6 @@ public interface IJapp
     public int Login(string username, string password);
 
     public int Logout();
+
+    public int Install(string packageName, string values, string packageDir);
 }

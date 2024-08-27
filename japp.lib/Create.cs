@@ -20,18 +20,18 @@ namespace japp.lib
             }
 
             // package.yml
-            string packageYml = Path.Combine(packageDir, "package.yml");
+            string packagePath = Path.Combine(packageDir, "package.yml");
 
-            if (File.Exists(packageYml))
+            if (File.Exists(packagePath))
             {
-                log.Warning("File {package} already exists, don't overwrite", packageYml);
+                log.Warning("File {package} already exists, don't overwrite", packagePath);
             }
             else
             {
-                log.Information("Create file {package}", packageYml);
+                log.Information("Create file {package}", packagePath);
                 using var stream = typeof(Japp).Assembly.GetManifestResourceStream("japp.lib.Template.package.yml")!;
                 var streamReader = new StreamReader(stream, Encoding.UTF8);
-                File.WriteAllText(packageYml, streamReader.ReadToEnd());
+                File.WriteAllText(packagePath, streamReader.ReadToEnd());
             }
 
             // logo.png

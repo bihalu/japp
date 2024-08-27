@@ -25,7 +25,7 @@ namespace japp.lib.Runner
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            log.Information("Start {count} tasks in {parallel}...", tasks.Count, runParallel ? "parallel" : "sequence");
+            log.Information("Run {count} tasks in {parallel}...", tasks.Count, runParallel ? "parallel" : "sequence");
 
             if (runParallel)
             {
@@ -38,8 +38,9 @@ namespace japp.lib.Runner
 
                 if (result.IsCompleted)
                 {
-                    // Find first failed task
+                    // Find first failed task or default
                     taskResult = resultCollection.Where(t => t.returncode > 0).FirstOrDefault();
+                    index = resultCollection.Where(t => t.returncode == 0).Count();
                 }
             }
             else

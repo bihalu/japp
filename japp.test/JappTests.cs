@@ -240,7 +240,7 @@ namespace japp.test
             var expectedYaml = File.ReadAllText("package01.yml");
 
             // Act
-            var builder = PackageBuilder.Initialize("japp/example", "1.0.0", "Japp example package");
+            var builder = PackageBuilder.Initialize(name: "japp/example", version: "1.0.0", description: "Japp example package");
             builder.AddFile(name: "foo", path: "bar");
             builder.AddFile(name: "bar", path: "foo");
             builder.AddContainer(registry: "docker.io", image: "library/hello-world", tag: "latest");
@@ -263,7 +263,7 @@ namespace japp.test
             var expectedYaml = File.ReadAllText("package02.yml");
 
             // Act
-            var builder = PackageBuilder.Initialize("japp/example", "1.0.0", "Japp example package");
+            var builder = PackageBuilder.Initialize(name: "japp/example", version: "1.0.0", description: "Japp example package");
             builder.AddFile(name: "foo", path: "bar");
             builder.AddFile(name: "bar", path: "foo");
             builder.AddContainer(registry: "docker.io", image: "library/hello-world", tag: "latest");

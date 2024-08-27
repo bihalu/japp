@@ -23,74 +23,20 @@ namespace japp.lib
                 return 1;
             }
 
-            // Read package.yml
-            PackageModel package;
-            string packageYml = Path.Combine(packageDir, "package.yml");
-
-            if (!File.Exists(packageYml))
+            // Validate package source
+            var validateResult = new Validate().Source(log, myConfig, packageDir);
+            if (validateResult.returncode != 0)
             {
-                log.Error("Missing file {package}, can't build japp package", packageYml);
-
-                return 2;
-            }
-            else
-            {
-                var yml = File.ReadAllText(packageYml);
-                log.Debug("{packageYaml}:\n{yaml}", packageYml, yml);
-
-                try
-                {
-                    var deserializer = new DeserializerBuilder()
-                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                        .Build();
-
-                    package = deserializer.Deserialize<PackageModel>(File.ReadAllText(packageYml));
-                }
-                catch (Exception exception)
-                {
-                    log.Error("Invalid japp package {package} => {error}", packageYml, exception.Message);
-
-                    return 3;
-                }
+                return validateResult.returncode;
             }
 
-            // Check package file list
+            // Package
+            var package = validateResult.package;
             string packageFiles = string.Empty;
 
-            if (null != package.Files)
+            if (null != package.Files && package.Files.Count > 0)
             {
-                foreach (var file in package.Files!)
-                {
-                    if (File.Exists(file.Value))
-                    {
-                        packageFiles += file.Value + " ";
-                        log.Information("Add file {file}={name} to japp package", file.Key, file.Value);
-                    }
-                    else
-                    {
-                        log.Error("Missing file {file}, can't build japp package", file.Value);
-
-                        return 4;
-                    }
-                }
-            }
-
-            // Pull container images
-            if (null != package.Containers)
-            {
-                foreach (var container in package.Containers)
-                {
-                    string containerImage = $"{container.Registry}/{container.Image}:{container.Tag}";
-
-                    log.Information("Pull container image {containerImage}", containerImage);
-
-                    var pullResult = Helper.RunCommand(log, $"podman pull {containerImage}");
-
-                    if (pullResult.returncode != 0)
-                    {
-                        return pullResult.returncode;
-                    }
-                }
+                packageFiles = string.Join(' ', package.Files.Select(f => f.Value).ToArray());
             }
 
             // Create Dockerfile

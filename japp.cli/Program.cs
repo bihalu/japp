@@ -56,6 +56,7 @@ class Program
         rootCommand.AddCommand(new Push(log, config));
         rootCommand.AddCommand(new Login(log, config));
         rootCommand.AddCommand(new Logout(log, config));
+        rootCommand.AddCommand(new Install(log, config));
 
         await rootCommand.InvokeAsync(args);
     }

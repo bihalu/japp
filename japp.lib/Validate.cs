@@ -2,6 +2,10 @@
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Serilog;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
+using japp.lib.Builder;
+using System.Reflection.Emit;
 
 namespace japp.lib
 {
@@ -53,7 +57,7 @@ namespace japp.lib
 
             if (apiVersion != "japp/v1")
             {
-                log.Error("Invalid or missing japp api version in {package}, Not a japp package", packageName);
+                log.Error("Invalid api version in {package}, Not a japp package", packageName);
 
                 return (2, id, layer);
             }
@@ -68,10 +72,90 @@ namespace japp.lib
             return (0, id, layer);
         }
 
-        public int Source(ILogger log, ConfigModel myConfig, string dir)
+        public (int returncode, PackageModel package) Source(ILogger log, ConfigModel myConfig, string packageDir)
         {
-            string registry = myConfig.Registry;
-            return 0;
+            // Initialize dummy package
+            var builder = PackageBuilder.Initialize(name: "dummy", version: "0.0.0");
+            PackageModel package = builder.package!;
+
+            // Read package.yml
+            string packagePath = Path.Combine(packageDir, "package.yml");
+
+            if (!File.Exists(packagePath))
+            {
+                log.Error("Missing file {package} in japp package", packagePath);
+
+                return (2, package);
+            }
+            else
+            {
+                var yaml = File.ReadAllText(packagePath);
+                log.Debug("{packagePath}:\n{yaml}", packagePath, yaml);
+
+                try
+                {
+                    var deserializer = new DeserializerBuilder()
+                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                        .Build();
+
+                    package = deserializer.Deserialize<PackageModel>(yaml);
+                }
+                catch (Exception exception)
+                {
+                    log.Error("Invalid japp package {package} => {error}", packagePath, exception.Message);
+
+                    return (3, package);
+                }
+            }
+
+            // Check api version
+            if (package.ApiVersion != "japp/v1")
+            {
+                log.Error("Invalid api version in {package}, Not a japp package", packagePath);
+
+                return (4, package);
+            }
+
+            // Check package file list
+            string packageFiles = string.Empty;
+
+            if (null != package.Files)
+            {
+                foreach (var file in package.Files!)
+                {
+                    if (File.Exists(file.Value))
+                    {
+                        packageFiles += file.Value + " ";
+                        log.Debug("Add file {file}={name} to japp package", file.Key, file.Value);
+                    }
+                    else
+                    {
+                        log.Error("Missing file {file} in japp package", file.Value);
+
+                        return (5, package);
+                    }
+                }
+            }
+
+            // Pull container images
+            if (null != package.Containers)
+            {
+                foreach (var container in package.Containers)
+                {
+                    string containerImage = $"{container.Registry}/{container.Image}:{container.Tag}";
+
+                    log.Information("Pull container image {containerImage}", containerImage);
+
+                    var pullResult = Helper.RunCommand(log, $"podman pull {containerImage}");
+
+                    if (pullResult.returncode != 0)
+                    {
+                        return (pullResult.returncode, package);
+                    }
+                }
+            }
+
+            return (0, package);
         }
     }
 }
