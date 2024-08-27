@@ -57,6 +57,11 @@ namespace japp.lib.Runner
                         // Break sequence if task failed
                         break;
                     }
+
+                    if (!string.IsNullOrWhiteSpace(taskResult.stdout))
+                    {
+                        log.Information("\n{stdout}", taskResult.stdout);
+                    }
                 }
             }
 

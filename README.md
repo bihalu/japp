@@ -69,12 +69,6 @@ Options:
   -?, -h, --help             Show help and usage information
 ```
 
-### --version
-```
-$ japp --version
-0.1.0_alpha0
-```
-
 ### --logging, -l
 Set logging output and level seperated with colon  
 Default is **console:information**  
@@ -103,6 +97,12 @@ $ japp --logging console:off build
 Pull japp package and log debug to file /tmp/japp/japp.log
 ```
 $ japp --logging file:debug pull japp/example:1.0
+```
+
+### --version
+```
+$ japp --version
+0.1.0_alpha0
 ```
 
 ## Commands
@@ -157,7 +157,8 @@ default config values
 
 ### create
 Create japp package template in directory mypackage  
-> If you ommit output directory then the files are created in the current directory
+> If you ommit output directory then the files are created in the current directory  
+> If you do create again existing files are not overwritten
 ```
 $ japp create --output mypackage
 [12:51:34 INF] Create file mypackage\package.yml
@@ -214,7 +215,30 @@ $ japp logout
 [13:13:07 INF] Removed login credentials for 192.168.178.59:5000
 ```
 
-# Build from source
+### install
+Install japp package
+> Make sure you have built or pulled the package before
+```
+$ japp install japp/example:1.0
+[18:11:37 INF] Run 3 tasks in sequence...
+[18:11:37 INF] Task (1/3) Test1 - echo Test
+[18:11:37 INF] Task (2/3) Test2 - sleep 3
+[18:11:40 INF] Task (3/3) Test3 - echo Test
+[18:11:40 INF] Done 3 tasks (Returncode: 0, Duration: 00:00:03.0281008)
+```
+
+To quickly test a package you can install it directly from the input directory
+```
+$ japp install japp/example:1.0 --input mypackage
+[18:11:05 INF] Run 3 tasks in sequence...
+[18:11:05 INF] Task (1/3) Test1 - echo Test
+[18:11:05 INF] Task (2/3) Test2 - sleep 3
+[18:11:08 INF] Task (3/3) Test3 - echo Test
+[18:11:08 INF] Done 3 tasks (Returncode: 0, Duration: 00:00:03.1081523)
+```
+
+
+# Build japp from source
 You need .net8.0 sdk and git  
 Example for building japp on debian 12
 ```
@@ -234,25 +258,25 @@ cd japp
 
 # build
 dotnet build
-  Wiederherzustellende Projekte werden ermittelt...
-  Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
-  japp.lib -> /root/japp/japp.lib/bin/Debug/net8.0/japp.lib.dll
-  japp.test -> /root/japp/japp.test/bin/Debug/net8.0/japp.test.dll
-  japp.cli -> /root/japp/japp.cli/bin/Debug/net8.0/japp.dll
+#  Wiederherzustellende Projekte werden ermittelt...
+#  Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
+#  japp.lib -> /root/japp/japp.lib/bin/Debug/net8.0/japp.lib.dll
+#  japp.test -> /root/japp/japp.test/bin/Debug/net8.0/japp.test.dll
+#  japp.cli -> /root/japp/japp.cli/bin/Debug/net8.0/japp.dll
 
-Der Buildvorgang wurde erfolgreich ausgeführt.
-    0 Warnung(en)
-    0 Fehler
+# Der Buildvorgang wurde erfolgreich ausgeführt.
+#    0 Warnung(en)
+#    0 Fehler
 
-Verstrichene Zeit 00:00:02.49
+# Verstrichene Zeit 00:00:02.49
 
 # test
 dotnet test
-...
-Die Testausführung wird gestartet, bitte warten...
-Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster überein.
+# ...
+# Die Testausführung wird gestartet, bitte warten...
+# Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster überein.
 
-Bestanden!   : Fehler:     0, erfolgreich:     7, übersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
+#Bestanden!   : Fehler:     0, erfolgreich:     7, übersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
 
 # publish linux version
 dotnet publish --runtime linux-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
