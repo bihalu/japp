@@ -405,7 +405,7 @@ RequiredBy=network.target
 
 ## Test
 Finally you can test your local registry
-```bash
+```
 # enable and start registry service
 systemctl enable registry
 systemctl start registry
