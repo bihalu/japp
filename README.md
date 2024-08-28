@@ -239,7 +239,7 @@ $ japp install japp/example:1.0 --input mypackage
 
 
 # Build japp from source
-You need .net8.0 sdk and git  
+You need .net8.0 sdk git and podman
 Example for building japp on debian 12
 ```
 # install .net8.0 sdk -> see https://learn.microsoft.com/de-de/dotnet/core/install/linux-debian
@@ -249,8 +249,8 @@ rm packages-microsoft-prod.deb
 
 sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
 
-# install git
-sudo apt install -y git
+# install git and podman
+sudo apt install -y git podman
 
 # clone japp repo
 git clone https://github.com/bihalu/japp.git
@@ -278,15 +278,163 @@ dotnet test
 
 #Bestanden!   : Fehler:     0, erfolgreich:     7, übersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
 
-# publish linux version
-dotnet publish --runtime linux-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
-
 # publish windows version
 dotnet publish --runtime win-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
+
+# publish linux version
+dotnet publish --runtime linux-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
+cp japp.cli/bin/Release/net8.0/linux-x64/publish/japp /usr/local/bin/
+
+japp --help
 ```
 
 # Setup local registry
-TODO descripe how to setup a local registry
+You can setup a local registry with the help of CNCF distribution  
+Here you find the [source](https://github.com/distribution/distribution/blob/main/README.md) and [docs](https://distribution.github.io/distribution/)  
+
+## Install
+```
+wget -qO- https://github.com/distribution/distribution/releases/download/v2.8.3/registry_2.8.3_linux_amd64.tar.gz | tar -xzf - registry && mv registry /usr/local/bin/
+```
+
+## Certificate
+Create a self signed certificate for your local registry  
+Place this script at /etc/distribution/generate_cert.sh  
+Change your host ip in subjectAltName if you want to access the registry from another server  
+```bash
+#!/bin/bash
+
+# create config.cnf
+cat - > config.cnf << EOF_CONFIG
+[ req ]
+prompt = no
+distinguished_name = distinguished_name
+x509_extensions = x509_extension
+[ distinguished_name ]
+CN = localhost
+[ x509_extension ]
+subjectAltName = DNS:localhost, IP:127.0.0.1, IP:192.168.178.59
+extendedKeyUsage = critical, serverAuth, clientAuth
+keyUsage = critical, digitalSignature, keyEncipherment
+EOF_CONFIG
+
+# create self signed certificate
+openssl req -x509 -config config.cnf -newkey rsa:2048 -keyout localhost.key -out localhost.crt -nodes
+
+# add certificate to trusted list
+cp localhost.crt /usr/local/share/ca-certificates/
+update-ca-certificates
+```
+
+Execute the script to generate certificates
+```
+cd /etc/distribution
+chmod +x generate_cert.sh
+./generate_cert.sh
+```
+## htpasswd
+You can protect your registry with username and password  
+Create password for username admin with this command  
+```
+apt install -y apache2-utils curl
+htpasswd -b -c -B /etc/distribution/htpasswd admin 123456
+```
+
+## Configure
+Create a config file for your registry at /etc/distribution/config.yml
+```yml
+version: 0.1
+
+log:
+  accesslog:
+    disabled: false
+  level: info
+  fields:
+    service: registry
+
+storage:
+  delete:
+    enabled: true
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+    maxthreads: 100
+
+http:
+  addr: :5000
+  secret: asecretforlocaldevelopment
+  tls:
+    certificate: /etc/distribution/localhost.crt
+    key: /etc/distribution/localhost.key
+  debug:
+    addr: :5001
+    prometheus:
+      enabled: true
+      path: /metrics
+  headers:
+    X-Content-Type-Options: [nosniff]
+  http2:
+    disabled: false
+  h2c:
+    enabled: false
+
+auth:
+  htpasswd:
+    realm: basic-realm
+    path: /etc/distribution/htpasswd
+```
+
+## Service
+You need a service config file for your registry,  
+save it at /etc/systemd/system/registry.service
+```ini
+[Unit]
+Description=registry
+After=network.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/registry serve /etc/distribution/config.yml
+
+[Install]
+WantedBy=default.target
+RequiredBy=network.target
+```
+
+## Test
+Finally you can test your local registry
+```bash
+# enable and start registry service
+systemctl enable registry
+systemctl start registry
+systemctl status registry
+
+# get image catalog from registry
+curl --user admin:123456 https://localhost:5000/v2/_catalog
+
+# pull push image with podman
+podman pull docker.io/rancher/cowsay:latest
+podman tag docker.io/rancher/cowsay:latest localhost:5000/rancher/cowsay:latest
+podman login -u admin -p 123456 localhost:5000
+podman push localhost:5000/rancher/cowsay:latest
+podman run localhost:5000/rancher/cowsay:latest Mooo
+ ______
+< Mooo >
+ ------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+```
 
 # Trusted certificate
-TODO describe how to accept self signed certificate from registry
+The certificate of your registry is stored in /etc/distribution/localhost.crt  
+To trust this certificate on another host simply copy it over in the directory /usr/local/share/ca-certificates/ and update ca certificates
+```
+scp /etc/distribution/localhost.crt root@<target-host>:/usr/local/share/ca-certificates/
+ssh root@<target-host> update-ca-certificates
+```

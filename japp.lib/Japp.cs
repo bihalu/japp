@@ -47,7 +47,7 @@ public class Japp : IJapp
         return new Logout().Execute(log, myConfig);
     }
 
-    public int Install(string packageName, string values, string packageDir)
+    public int Install(string packageName, string? values, string packageDir)
     {
         return new Install().Execute(log, myConfig, packageName, values, packageDir);
     }

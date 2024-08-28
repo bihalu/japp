@@ -10,7 +10,7 @@ namespace japp.lib
 {
     internal class Install
     {
-        public int Execute(ILogger log, ConfigModel myConfig, string packageName, string values, string packageDir)
+        public int Execute(ILogger log, ConfigModel myConfig, string packageName, string? values, string packageDir)
         {
             string registry = myConfig.Registry;
             string tempDir = Path.Combine(myConfig.TempDir, Guid.NewGuid().ToString("N"));

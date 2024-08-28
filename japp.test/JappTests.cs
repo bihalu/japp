@@ -319,7 +319,7 @@ namespace japp.test
 
             //loggingLevelSwitch.MinimumLevel = LogEventLevel.Debug;
 
-            string packageDir = Path.GetDirectoryName(packagePath);
+            string packageDir = Path.GetDirectoryName(packagePath)!;
             var japp = new Japp(log, config);
 
             // Act

@@ -14,5 +14,5 @@ public interface IJapp
 
     public int Logout();
 
-    public int Install(string packageName, string values, string packageDir);
+    public int Install(string packageName, string? values, string packageDir);
 }
