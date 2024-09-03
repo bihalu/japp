@@ -24,10 +24,10 @@ public class Create : Command
         this.SetHandler((string outputDir) => HandleCreate(outputDir), outputDir);
     }
 
-    private int HandleCreate(string outputDir)
+    private Task<int> HandleCreate(string outputDir)
     {
         log.Debug("Create: outputDir={outputDir}", outputDir);
 
-        return new Japp(log, config).Create(outputDir);
+        return Task.FromResult(new Japp(log, config).Create(outputDir));
     }
 }

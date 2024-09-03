@@ -10,6 +10,10 @@
     "japp push japp/example:1.0 --retag": {
       "commandName": "Project",
       "commandLineArgs": "--logging console:debug push japp/example:1.0 --retag"
+    },
+    "japp build -i xxx": {
+      "commandName": "Project",
+      "commandLineArgs": "--logging console:debug build -i xxx "
     }
   }
 }

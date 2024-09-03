@@ -1,4 +1,4 @@
-using japp.lib;
+﻿using japp.lib;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.CommandLine;
@@ -18,10 +18,10 @@ public class Logout : Command
         this.SetHandler(() => HandleLogout());
     }
 
-    private int HandleLogout()
+    private Task<int> HandleLogout()
     {
         log.Debug("Logout:");
 
-        return new Japp(log, config).Logout();
+        return Task.FromResult(new Japp(log, config).Logout());
     }
 }

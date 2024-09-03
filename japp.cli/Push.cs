@@ -27,10 +27,10 @@ public class Push : Command
         this.SetHandler((string packageName, bool retag) => HandlePush(packageName, retag), packageName, retag);
     }
 
-    private int HandlePush(string packageName, bool retag)
+    private Task<int> HandlePush(string packageName, bool retag)
     {
         log.Debug("Push: packageName={packageName}, retag={retag}", packageName, retag);
 
-        return new Japp(log, config).Push(packageName, retag);
+        return Task.FromResult(new Japp(log, config).Push(packageName, retag));
     }
 }

@@ -1,8 +1,6 @@
 ﻿using japp.lib.Models;
 using Serilog;
 using System.Text;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
 
 namespace japp.lib
 {

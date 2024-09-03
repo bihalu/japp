@@ -1,4 +1,4 @@
-using japp.lib;
+﻿using japp.lib;
 using japp.lib.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -51,7 +51,7 @@ public class Config : Command
             HandleConfig(registry, tempDir, cleanup, tlsVerify, reset), registry, tempDir, cleanup, tlsVerify, reset);
     }
 
-    private int HandleConfig(string registry, string tempDir, bool? cleanup, bool? tlsVerify, bool reset)
+    private Task<int> HandleConfig(string registry, string tempDir, bool? cleanup, bool? tlsVerify, bool reset)
     {
         log.Debug("Config: registry={registry}, tempDir={tempDir}, cleanup={cleanup}, tlsVerify={tlsVerify}, reset={reset}", registry, tempDir, cleanup, tlsVerify, reset);
 
@@ -90,6 +90,6 @@ public class Config : Command
         var jsonConfig = JsonConvert.SerializeObject(myConfig, Formatting.Indented);
         log.Information("Config file: {path}\n {config}", Helper.GetConfigPath(), jsonConfig);
 
-        return 0;
+        return System.Threading.Tasks.Task.FromResult(0);
     }
 }

@@ -1,4 +1,4 @@
-using japp.lib;
+﻿using japp.lib;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.CommandLine;
@@ -30,7 +30,7 @@ public class Login : Command
         this.SetHandler((string username, string password) => HandleLogin(username, password), username, password);
     }
 
-    private int HandleLogin(string username, string password)
+    private Task<int> HandleLogin(string username, string password)
     {
         if (string.IsNullOrEmpty(password))
         {
@@ -41,7 +41,7 @@ public class Login : Command
 
         log.Debug("Login: username={username}, password={password}", username, reductedPassword);
 
-        return new Japp(log, config).Login(username, password);
+        return Task.FromResult(new Japp(log, config).Login(username, password));
     }
 
     private string GetPassword() // private SecureString GetPassword()

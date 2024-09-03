@@ -1,4 +1,4 @@
-using japp.lib;
+﻿using japp.lib;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.CommandLine;
@@ -24,10 +24,10 @@ public class Build : Command
         this.SetHandler((string packageDir) => HandleBuild(packageDir), packageDir);
     }
 
-    private int HandleBuild(string packageDir)
+    private Task<int> HandleBuild(string packageDir)
     {
         log.Debug("Build: packageDir={packageDir}", packageDir);
-        
-        return new Japp(log, config).Build(packageDir);
+
+        return Task.FromResult(new Japp(log, config).Build(packageDir));
     }
 }

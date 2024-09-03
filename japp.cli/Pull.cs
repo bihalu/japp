@@ -27,10 +27,10 @@ public class Pull : Command
         this.SetHandler((string packageName, string outputDir) => HandlePull(packageName, outputDir), packageName, outputDir);
     }
 
-    private int HandlePull(string packageName, string outputDir)
+    private Task<int> HandlePull(string packageName, string outputDir)
     {
         log.Debug("Pull: packageName={packageName}, outputDir={output}", packageName, outputDir);
 
-        return new Japp(log, config).Pull(packageName, outputDir);
+        return Task.FromResult(new Japp(log, config).Pull(packageName, outputDir));
     }
 }

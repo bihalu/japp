@@ -33,10 +33,10 @@ public class Install : Command
         this.SetHandler((string packageName, string values, string packageDir) => HandleInstall(packageName, values, packageDir), packageName, values, packageDir);
     }
 
-    private int HandleInstall(string packageName, string values, string packageDir)
+    private Task<int> HandleInstall(string packageName, string values, string packageDir)
     {
         log.Debug("Install: packageName={packageName}, values={values}, packageDir={packageDir}", packageName, values, packageDir);
-        
-        return new Japp(log, config).Install(packageName, values, packageDir);
+
+        return Task.FromResult(new Japp(log, config).Install(packageName, values, packageDir));
     }
 }

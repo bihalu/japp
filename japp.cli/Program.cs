@@ -6,13 +6,12 @@ using Serilog.Core;
 using Serilog.Events;
 using System.CommandLine;
 using System.Reflection;
-using Task = System.Threading.Tasks.Task;
 
 namespace japp.cli;
 
 class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         // Root command
         var rootCommand = new RootCommand
@@ -58,7 +57,7 @@ class Program
         rootCommand.AddCommand(new Logout(log, config));
         rootCommand.AddCommand(new Install(log, config));
 
-        await rootCommand.InvokeAsync(args);
+        return await rootCommand.InvokeAsync(args);
     }
 
     private static ILogger CreateLogger(string[] args, ConfigModel config)
