@@ -132,6 +132,16 @@ public static class Helper
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
+
+                    var myEnv1 = process.StartInfo.Environment;
+
+                    log.Debug("myEnv count: {count}", myEnv1.Count);
+
+                    foreach (var key in myEnv1.Keys)
+                    {
+                        log.Debug($"{key}={myEnv1[key]}");
+                    }
+
                     process.WaitForExit();
                     returncode = process.ExitCode;
                 }
@@ -170,21 +180,6 @@ public static class Helper
             {
                 log.Debug($"{key}={myEnv[key]}");
             }
-
-            var myEnvVar = process.StartInfo.EnvironmentVariables;
-
-            log.Debug("myEnvVar count: {count}", myEnvVar.Count);
-
-            foreach (var key in myEnvVar.Keys)
-            {
-                log.Debug("{key}", key);
-            }
-
-            foreach (var value in myEnvVar.Values)
-            {
-                log.Debug("{value}", value);
-            }
-
         };
 
         return (returncode, stdout, stderr);
