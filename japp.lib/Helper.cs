@@ -80,6 +80,16 @@ public static class Helper
 
         log.Debug("Command: {command} {args}", command, reductedArgs);
 
+        // Read environment variables
+        var environmentVariables = new Dictionary<string, string>();
+        var environemtVariablesPath = Path.Combine(workingDir, ".japp_env");
+        if (File.Exists(environemtVariablesPath))
+        {
+            environmentVariables = File.ReadAllLines(environemtVariablesPath)
+                                       .Select(x => x.Split('='))
+                                       .ToDictionary(x => x[0], x => x[1]);
+        }
+
         // Set process start info
         ProcessStartInfo processStartInfo = new()
         {
@@ -90,9 +100,14 @@ public static class Helper
             WorkingDirectory = workingDir,
             FileName = command,
             Arguments = args,
-            EnvironmentVariables = { { "FOO", "BAR" }, { "BAR", "FOO" } },
-            Environment = { { "FOOBAR", "BARFOO" }, { "BARFOO", "FOOBAR" } }
+            EnvironmentVariables = { { "JAPP_ENV", environemtVariablesPath } },
         };
+
+        // Add environment variables
+        foreach (var item in environmentVariables)
+        {
+            processStartInfo.EnvironmentVariables.Add(item.Key, item.Value);
+        }
 
         log.Verbose("Process start info: {@processStartInfo}", processStartInfo);
 
@@ -132,16 +147,6 @@ public static class Helper
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
-
-                    var myEnv1 = process.StartInfo.Environment;
-
-                    log.Debug("myEnv count: {count}", myEnv1.Count);
-
-                    foreach (var key in myEnv1.Keys)
-                    {
-                        log.Debug($"{key}={myEnv1[key]}");
-                    }
-
                     process.WaitForExit();
                     returncode = process.ExitCode;
                 }
@@ -170,15 +175,6 @@ public static class Helper
                 }
 
                 log.Error("Command: {command} {args} (Returncode: {returncode}, Duration: {elapsed})", command, reductedArgs, returncode, stopwatch.Elapsed);
-            }
-
-            var myEnv = process.StartInfo.Environment;
-
-            log.Debug("myEnv count: {count}", myEnv.Count);
-
-            foreach (var key in myEnv.Keys)
-            {
-                log.Debug($"{key}={myEnv[key]}");
             }
         };
 
