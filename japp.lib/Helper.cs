@@ -88,7 +88,9 @@ public static class Helper
             RedirectStandardError = true,
             WorkingDirectory = workingDir,
             FileName = command,
-            Arguments = args
+            Arguments = args,
+            EnvironmentVariables = { { "FOO", "BAR" }, { "BAR", "FOO" } },
+            Environment = { { "FOOBAR", "BARFOO" }, { "BARFOO", "FOOBAR" } }
         };
 
         log.Verbose("Process start info: {@processStartInfo}", processStartInfo);
@@ -157,6 +159,13 @@ public static class Helper
                 }
 
                 log.Error("Command: {command} {args} (Returncode: {returncode}, Duration: {elapsed})", command, reductedArgs, returncode, stopwatch.Elapsed);
+            }
+
+            var myEnv = process.StartInfo.Environment;
+
+            foreach (var key in myEnv.Keys)
+            {
+                log.Debug($"{key}={myEnv[key]}");
             }
         };
 
