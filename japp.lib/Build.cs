@@ -42,7 +42,7 @@ namespace japp.lib
 
             StringBuilder docker = new();
             docker.AppendLine("FROM scratch");
-            docker.AppendFormat("COPY package.yml README.md logo.png {0}/\n", packageFiles);
+            docker.AppendFormat("COPY package.yml README.md logo.png {0} /\n", packageFiles);
             docker.AppendFormat("LABEL japp=\"{0}\"\n", package.ApiVersion);
             docker.Append("CMD [\"/jappinfo\"]"); // TODO build jappinfo binary
 
