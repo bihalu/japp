@@ -6,6 +6,7 @@ using Serilog.Context;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using YamlDotNet.Core.Tokens;
 
 namespace japp.lib;
 
@@ -163,10 +164,27 @@ public static class Helper
 
             var myEnv = process.StartInfo.Environment;
 
+            log.Debug("myEnv count: {count}", myEnv.Count);
+
             foreach (var key in myEnv.Keys)
             {
                 log.Debug($"{key}={myEnv[key]}");
             }
+
+            var myEnvVar = process.StartInfo.EnvironmentVariables;
+
+            log.Debug("myEnvVar count: {count}", myEnvVar.Count);
+
+            foreach (var key in myEnvVar.Keys)
+            {
+                log.Debug("{key}", key);
+            }
+
+            foreach (var value in myEnvVar.Values)
+            {
+                log.Debug("{value}", value);
+            }
+
         };
 
         return (returncode, stdout, stderr);
