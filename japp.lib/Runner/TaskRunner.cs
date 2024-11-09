@@ -58,6 +58,19 @@ namespace japp.lib.Runner
                 {
                     log.Information("Task ({index}/{count}) {name} - {command}", ++index, tasks.Count, task.Name, task.Command);
 
+                    // Check if alias exists for command
+                    var myCommand = task.Command.Split(' ').FirstOrDefault();
+                    var alias = myConfig.Aliases.FirstOrDefault(x => x.Alias == myCommand);
+
+                    if (alias != null)
+                    {
+                        // Substitute command alias
+                        var args = task.Command.Substring(myCommand!.Length);
+                        task.Command = alias.Command + args;
+
+                        log.Debug("Command alias {command}", task.Command);
+                    }
+
                     taskResult = Helper.RunCommand(log, task.Command, useShell, workingDir);
 
                     if (taskResult.returncode != 0)

@@ -10,6 +10,8 @@ public class ConfigModel
 
     public bool TlsVerify { get; set; }
 
+    public List<AliasModel> Aliases { get; set; }
+
     public ConfigModel()
     {
         //Registry = "docker.io";
@@ -24,5 +26,11 @@ public class ConfigModel
         Cleanup = false;
 
         TlsVerify = false;
+
+        Aliases = 
+        [ 
+            new AliasModel() { Alias = "cowsay", Command = "podman run --rm rancher/cowsay", MountDir = "" },
+            new AliasModel() { Alias = "figlet", Command = "podman run --rm hairyhenderson/figlet", MountDir = "" } 
+        ];
     }
 }
