@@ -9,7 +9,7 @@ Then download the [japp binary](https://github.com/bihalu/japp/releases) from gi
 ```
 sudo apt install -y podman curl
 
-sudo curl -L -o /usr/local/bin/japp https://github.com/bihalu/japp/releases/download/v0.1.0-alpha0/japp
+sudo curl -L -o /usr/local/bin/japp https://github.com/bihalu/japp/releases/download/v0.1.1-alpha0/japp
 
 sudo chmod +x /usr/local/bin/japp
 ```
@@ -31,7 +31,7 @@ Description:
     | | (_| | |_) | |_) |
     | |\__,_| .__/| .__/
    _/ |     | |   | |    Just another package program ;-)
-  |__/      |_|   |_|    Version 0.1.0_alpha0
+  |__/      |_|   |_|    Version 0.1.1_alpha0
 
 Usage:
   japp [command] [options]
@@ -102,7 +102,7 @@ $ japp --logging file:debug pull japp/example:1.0
 ### --version
 ```
 $ japp --version
-0.1.0_alpha0
+0.1.1_alpha0
 ```
 
 ## Commands
@@ -237,8 +237,20 @@ $ japp install japp/example:1.0 --input mypackage
 [18:11:08 INF] Done 3 tasks (Returncode: 0, Duration: 00:00:03.1081523)
 ```
 
+# examples
 
-# Build japp from source
+TODO
+
+## aliases
+
+TODO cowsay and figlet
+
+## environment variables
+
+TODO
+
+
+# build japp from source
 You need .net8.0 sdk git and podman
 Example for building japp on debian 12
 ```
@@ -273,10 +285,10 @@ dotnet build
 # test
 dotnet test
 # ...
-# Die Testausf�hrung wird gestartet, bitte warten...
-# Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster �berein.
+# Die Testausführung wird gestartet, bitte warten...
+# Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster überein.
 
-#Bestanden!   : Fehler:     0, erfolgreich:     7, �bersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
+#Bestanden!   : Fehler:     0, erfolgreich:     7, übersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
 
 # publish windows version
 dotnet publish --runtime win-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
@@ -288,16 +300,16 @@ cp japp.cli/bin/Release/net8.0/linux-x64/publish/japp /usr/local/bin/
 japp --help
 ```
 
-# Setup local registry
+# setup local registry
 You can setup a local registry with the help of CNCF distribution  
 Here you find the [source](https://github.com/distribution/distribution/blob/main/README.md) and [docs](https://distribution.github.io/distribution/)  
 
-## Install
+## install
 ```
 wget -qO- https://github.com/distribution/distribution/releases/download/v2.8.3/registry_2.8.3_linux_amd64.tar.gz | tar -xzf - registry && mv registry /usr/local/bin/
 ```
 
-## Certificate
+## certificate
 Create a self signed certificate for your local registry  
 Place this script at /etc/distribution/generate_cert.sh  
 Change your host ip in subjectAltName if you want to access the registry from another server  
@@ -340,7 +352,7 @@ apt install -y apache2-utils curl
 htpasswd -b -c -B /etc/distribution/htpasswd admin 123456
 ```
 
-## Configure
+## configure
 Create a config file for your registry at /etc/distribution/config.yml
 ```yml
 version: 0.1
@@ -385,7 +397,7 @@ auth:
     path: /etc/distribution/htpasswd
 ```
 
-## Service
+## service
 You need a service config file for your registry,  
 save it at /etc/systemd/system/registry.service
 ```ini
@@ -403,7 +415,7 @@ WantedBy=default.target
 RequiredBy=network.target
 ```
 
-## Test
+## test
 Finally you can test your local registry
 ```
 # enable and start registry service
@@ -431,7 +443,7 @@ podman run localhost:5000/rancher/cowsay:latest Mooo
 
 ```
 
-# Trusted certificate
+# trusted certificate
 The certificate of your registry is stored in /etc/distribution/localhost.crt  
 To trust this certificate on another host simply copy it over in the directory /usr/local/share/ca-certificates/ and update ca certificates
 ```

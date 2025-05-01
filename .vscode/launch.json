@@ -15,6 +15,16 @@
             "console": "internalConsole"
         },
         {
+            "name": "japp config",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/japp.cli/bin/Debug/net8.0/japp",
+            "args": ["config"],
+            "cwd": "${workspaceFolder}/japp.cli/bin/Debug/net8.0",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
             "name": "japp --help",
             "type": "coreclr",
             "request": "launch",
