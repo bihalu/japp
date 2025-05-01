@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>japp</AssemblyName>
-    <Version>0.1.0</Version>
-    <InformationalVersion>0.1.0_alpha0</InformationalVersion>
+    <Version>0.1.1</Version>
+    <InformationalVersion>0.1.1_alpha0</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>

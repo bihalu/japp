@@ -14,8 +14,7 @@ public class ConfigModel
 
     public ConfigModel()
     {
-        //Registry = "docker.io";
-        Registry = "192.168.178.59:5000";
+        Registry = "localhost:5000";
 
         TempDir = Path.Combine(Path.GetTempPath(), "japp");
         if (!Directory.Exists(TempDir))

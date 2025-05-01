@@ -3,8 +3,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.1.0</Version>
-    <InformationalVersion>0.1.0_alpha0</InformationalVersion>
+    <Version>0.1.1</Version>
+    <InformationalVersion>0.1.1_alpha0</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -17,5 +17,6 @@
     <EmbeddedResource Include="Template\package.yml" />
     <EmbeddedResource Include="Template\logo.png" />
     <EmbeddedResource Include="Template\README.md" />
+    <EmbeddedResource Include="Template\jappinfo" />
   </ItemGroup>
 </Project>

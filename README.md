@@ -113,7 +113,7 @@ Show all config values
 $ japp config
 [12:13:13 INF] Config file: C:\Users\Hansi\.japp\config.json
  {
-  "Registry": "192.168.178.59:5000",
+  "Registry": "localhost:5000",
   "TempDir": "C:\\Users\\Hansi\\AppData\\Local\\Temp\\japp",
   "Cleanup": false,
   "TlsVerify": false
@@ -150,7 +150,7 @@ default config values
 
 | name       | value                                            |
 | :--------- | :----------------------------------------------- |
-| registry   | 192.168.178.59:5000                              |
+| registry   | localhost:5000                                   |
 | cleanup    | false                                            |
 | temp       | /tmp/japp (on linux)<br>%TEMP%/japp (on windows) |
 | tls-verify | false                                            |
@@ -189,14 +189,14 @@ Push japp package to registry
 > Make sure you have built the package before
 ```
 $ japp push japp/mypackage:1.0
-[13:33:42 INF] Push japp package 192.168.178.59:5000/japp/mypackage:1.0
+[13:33:42 INF] Push japp package localhost:5000/japp/mypackage:1.0
 ```
 
 With the option --retag all container images of the japp package are also pushed
 ```
 $ japp push japp/mypackage:1.0 --retag
-[13:35:03 INF] Push japp package 192.168.178.59:5000/japp/mypackage:1.0
-[13:35:05 INF] Push container image 192.168.178.59:5000/rancher/cowsay:latest
+[13:35:03 INF] Push japp package localhost:5000/japp/mypackage:1.0
+[13:35:05 INF] Push container image localhost:5000/rancher/cowsay:latest
 ```
 
 ### login
@@ -212,7 +212,7 @@ Password: ******
 Logout from registry
 ```
 $ japp logout
-[13:13:07 INF] Removed login credentials for 192.168.178.59:5000
+[13:13:07 INF] Removed login credentials for localhost:5000
 ```
 
 ### install
@@ -259,12 +259,12 @@ cd japp
 # build
 dotnet build
 #  Wiederherzustellende Projekte werden ermittelt...
-#  Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
+#  Alle Projekte sind fï¿½r die Wiederherstellung auf dem neuesten Stand.
 #  japp.lib -> /root/japp/japp.lib/bin/Debug/net8.0/japp.lib.dll
 #  japp.test -> /root/japp/japp.test/bin/Debug/net8.0/japp.test.dll
 #  japp.cli -> /root/japp/japp.cli/bin/Debug/net8.0/japp.dll
 
-# Der Buildvorgang wurde erfolgreich ausgeführt.
+# Der Buildvorgang wurde erfolgreich ausgefï¿½hrt.
 #    0 Warnung(en)
 #    0 Fehler
 
@@ -273,10 +273,10 @@ dotnet build
 # test
 dotnet test
 # ...
-# Die Testausführung wird gestartet, bitte warten...
-# Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster überein.
+# Die Testausfï¿½hrung wird gestartet, bitte warten...
+# Insgesamt 1 Testdateien stimmten mit dem angegebenen Muster ï¿½berein.
 
-#Bestanden!   : Fehler:     0, erfolgreich:     7, übersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
+#Bestanden!   : Fehler:     0, erfolgreich:     7, ï¿½bersprungen:     0, gesamt:     7, Dauer: 71 ms - japp.test.dll (net8.0)
 
 # publish windows version
 dotnet publish --runtime win-x64 -p:PublishSingleFile=true --self-contained true japp.cli/japp.cli.csproj
@@ -313,7 +313,7 @@ x509_extensions = x509_extension
 [ distinguished_name ]
 CN = localhost
 [ x509_extension ]
-subjectAltName = DNS:localhost, IP:127.0.0.1, IP:192.168.178.59
+subjectAltName = DNS:localhost, IP:127.0.0.1, IP:192.168.178.188
 extendedKeyUsage = critical, serverAuth, clientAuth
 keyUsage = critical, digitalSignature, keyEncipherment
 EOF_CONFIG
