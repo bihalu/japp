@@ -63,6 +63,13 @@ namespace japp.lib
 
             var package = deserializer.Deserialize<PackageModel>(yaml);
 
+            // Cleanup .japp_env
+            var environemtVariablesPath = Path.Combine(packageDir, ".japp_env");
+            if (File.Exists(environemtVariablesPath))
+            {
+                File.Delete(environemtVariablesPath);
+            }
+
             // Task runner
             // TODO values for task runner
             // TODO useShell
