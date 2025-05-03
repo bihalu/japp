@@ -215,7 +215,8 @@ public static class Helper
 
     public static ConfigModel BindConfig(IConfiguration config)
     {
-        var myConfig = new ConfigModel();
+        ConfigModel myConfig = new ConfigModel();
+        myConfig.Aliases.Clear();
         config.Bind(myConfig);
         return myConfig;
     }
