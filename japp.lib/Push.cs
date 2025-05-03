@@ -4,11 +4,19 @@ using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
+using Microsoft.Extensions.Configuration;
 
 namespace japp.lib
 {
     internal class Push
     {
+        private readonly IConfiguration _configuration;
+
+        public Push(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public int Execute(ILogger log, ConfigModel myConfig, string packageName, bool retagAndPush = false)
         {
             string registry = myConfig.Registry;
@@ -21,16 +29,6 @@ namespace japp.lib
             {
                 return validateResult.returncode;
             }
-
-            // Push container image
-            var pushResult = Helper.RunCommand(log, $"podman push {options}{registry}/{packageName}");
-
-            if (pushResult.returncode != 0)
-            {
-                return pushResult.returncode;
-            }
-
-            log.Information("Push japp package {registry}/{packageName}", registry, packageName);
 
             // Retag and push container images
             if (retagAndPush)
@@ -70,6 +68,9 @@ namespace japp.lib
                         string sourceImage = $"{container.Registry}/{container.Image}:{container.Tag}";
                         string destinationImage = $"{registry}/{container.Image}:{container.Tag}";
 
+                        // Rewrite registry
+                        container.Registry = registry;
+
                         // Tag container image
                         var retagResult = Helper.RunCommand(log, $"podman tag {sourceImage} {destinationImage}");
 
@@ -89,6 +90,46 @@ namespace japp.lib
                         log.Information("Push container image {destinationImage}", destinationImage);
                     }
                 }
+
+                // Serialize modified package.yml
+                var serializer = new SerializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .Build();
+
+                yaml = serializer.Serialize(package);
+                File.WriteAllText(packagePath, yaml);
+                log.Debug("After registry rewrite");
+                log.Debug("{packagePath}:\n{yaml}", packagePath, yaml);
+
+                // Rebuild package
+                var returncode = new Japp(log, _configuration).Build(tempDir);
+
+                if (returncode != 0)
+                {
+                    return returncode;
+                }
+
+                // Push container image
+                var pushResult = Helper.RunCommand(log, $"podman push {options}{registry}/{packageName}");
+
+                if (pushResult.returncode != 0)
+                {
+                    return pushResult.returncode;
+                }
+
+                log.Information("Push japp package {registry}/{packageName}", registry, packageName);
+            }
+            else
+            {
+                // Push container image without retag
+                var pushResult = Helper.RunCommand(log, $"podman push {options}{registry}/{packageName}");
+
+                if (pushResult.returncode != 0)
+                {
+                    return pushResult.returncode;
+                }
+
+                log.Information("Push japp package {registry}/{packageName}", registry, packageName);
             }
 
             return 0;

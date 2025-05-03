@@ -34,7 +34,7 @@ public class Japp : IJapp
 
     public int Push(string packageName, bool retag = false)
     {
-        return new Push().Execute(log, myConfig, packageName, retag);
+        return new Push(config).Execute(log, myConfig, packageName, retag);
     }
 
     public int Login(string username, string password)
