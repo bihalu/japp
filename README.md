@@ -271,12 +271,12 @@ cd japp
 # build
 dotnet build
 #  Wiederherzustellende Projekte werden ermittelt...
-#  Alle Projekte sind f�r die Wiederherstellung auf dem neuesten Stand.
+#  Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
 #  japp.lib -> /root/japp/japp.lib/bin/Debug/net8.0/japp.lib.dll
 #  japp.test -> /root/japp/japp.test/bin/Debug/net8.0/japp.test.dll
 #  japp.cli -> /root/japp/japp.cli/bin/Debug/net8.0/japp.dll
 
-# Der Buildvorgang wurde erfolgreich ausgef�hrt.
+# Der Buildvorgang wurde erfolgreich ausgeführt.
 #    0 Warnung(en)
 #    0 Fehler
 
