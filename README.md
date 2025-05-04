@@ -6,7 +6,7 @@ It uses a container registry to store the packages
 Japp has a dependency on podman  
 Please [install podman](https://podman.io/docs/installation) first  
 Then download the [japp binary](https://github.com/bihalu/japp/releases) from github release page
-```
+```bash
 sudo apt install -y podman curl
 
 sudo curl -L -o /usr/local/bin/japp https://github.com/bihalu/japp/releases/download/v0.1.1-alpha0/japp
@@ -20,7 +20,7 @@ sudo chmod +x /usr/local/bin/japp
 ## Options
 
 ### --help, -h, -?
-```
+```bash
 $ japp --help
 Description:
 
@@ -52,7 +52,7 @@ Commands:
 ```
 
 Get detailed help for e.g. command config
-```
+```bash
 $ japp config --help
 Description:
   Set config values
@@ -90,17 +90,17 @@ Any combination of log output and log level is supported
 | off         |
 
 Build japp package and turn logging off
-```
+```bash
 $ japp --logging console:off build
 ```
 
 Pull japp package and log debug to file /tmp/japp/japp.log
-```
+```bash
 $ japp --logging file:debug pull japp/example:1.0
 ```
 
 ### --version
-```
+```bash
 $ japp --version
 0.1.1_alpha0
 ```
@@ -109,7 +109,7 @@ $ japp --version
 
 ### config
 Show all config values
-```
+```bash
 $ japp config
 [12:13:13 INF] Config file: C:\Users\Hansi\.japp\config.json
  {
@@ -121,28 +121,28 @@ $ japp config
 ```
 
 Set registry to docker.io
-```
+```bash
 $ japp config --registry docker.io
 ```
 
 Set cleanup to true
-```
+```bash
 $ japp config --cleanup true
 ```
 
 Set temp directory to /tmp/japp
-```
+```bash
 $ japp config --temp /tmp/japp
 ```
 
 Set tls verify to true  
 > You can use this option if the certificate for your registry is [trusted](#trusted-certificate)
-```
+```bash
 $ japp config --tls-verify true
 ```
 
 Reset config to default values
-```
+```bash
 $ japp config --reset
 ```
 
@@ -159,7 +159,7 @@ default config values
 Create japp package template in directory mypackage  
 > If you ommit output directory then the files are created in the current directory  
 > If you do create again existing files are not overwritten
-```
+```bash
 $ japp create --output mypackage
 [12:51:34 INF] Create file mypackage\package.yml
 [12:51:34 INF] Create file mypackage\logo.png
@@ -169,7 +169,7 @@ $ japp create --output mypackage
 ### build
 Build japp package from directory mypackage  
 > If you ommit input directory then the package is build in the current directory
-```
+```bash
 $ japp build --input mypackage
 [13:03:59 INF] Pull container image docker.io/rancher/cowsay:latest
 [13:04:02 INF] Build japp package docker.io/japp/example:1.0
@@ -179,7 +179,7 @@ $ japp build --input mypackage
 Pull japp package japp/example:1.0 to output directory mypackage
 > If you ommit output directory then the package is pulled in the current directory  
 > The long sub directory name is the unique package id
-```
+```bash
 $ japp pull japp/example:1.0 --output mypackage
 [13:27:09 INF] Package japp/example:1.0 pulled to mypackage\93d183809f4706f25ee981dc25751a8d17eb976cfea9a9db093e3a66d9fd276a
 ```
@@ -187,13 +187,13 @@ $ japp pull japp/example:1.0 --output mypackage
 ### push
 Push japp package to registry  
 > Make sure you have built the package before
-```
+```bash
 $ japp push japp/mypackage:1.0
 [13:33:42 INF] Push japp package localhost:5000/japp/mypackage:1.0
 ```
 
 With the option --retag all container images of the japp package are also pushed
-```
+```bash
 $ japp push japp/mypackage:1.0 --retag
 [13:35:03 INF] Push japp package localhost:5000/japp/mypackage:1.0
 [13:35:05 INF] Push container image localhost:5000/rancher/cowsay:latest
@@ -202,7 +202,7 @@ $ japp push japp/mypackage:1.0 --retag
 ### login
 Login to registry  
 > necessary if it is a private registry with authentication
-```
+```bash
 $ japp login --username admin
 Password: ******
 [13:13:54 INF] Login Succeeded!
@@ -210,7 +210,7 @@ Password: ******
 
 ### logout
 Logout from registry
-```
+```bash
 $ japp logout
 [13:13:07 INF] Removed login credentials for localhost:5000
 ```
@@ -218,7 +218,7 @@ $ japp logout
 ### install
 Install japp package
 > Make sure you have built or pulled the package before
-```
+```bash
 $ japp install japp/example:1.0
 [18:11:37 INF] Run 3 tasks in sequence...
 [18:11:37 INF] Task (1/3) Test1 - echo Test
@@ -228,7 +228,7 @@ $ japp install japp/example:1.0
 ```
 
 To quickly test a package you can install it directly from the input directory
-```
+```bash
 $ japp install japp/example:1.0 --input mypackage
 [18:11:05 INF] Run 3 tasks in sequence...
 [18:11:05 INF] Task (1/3) Test1 - echo Test
@@ -239,16 +239,110 @@ $ japp install japp/example:1.0 --input mypackage
 
 # examples
 
-TODO
-
 ## aliases
+Japp has two builtin aliasses (cowsay and figlet)  
+these aliases are simply containers that are executed  
 
-TODO cowsay and figlet
+This example shows the application aliases  
+```yml
+apiVersion: japp/v1
+name: japp/aliasses
+version: 1.0
+description: Japp builtin aliasses example
+files:
+containers:
+install:
+  tasks:
+  - name: Task1
+    description: Cowsay dressed as penguin
+    command: cowsay -f tux Japp is great
+  - name: Task2
+    description: Figlet
+    command: figlet Just another package program
+```
+
+Build and run aliasses example
+```txt
+$ japp build
+[14:20:24 INF] Build japp package localhost:5000/japp/aliasses:1.0
+$ japp install japp/aliasses:1.0 --input .
+[14:21:06 INF] Run 2 tasks in sequence...
+[14:21:06 INF] Task (1/2) Task1 - Cowsay dressed as penguin
+[14:21:07 INF] 
+ _______________ 
+< Japp is great >
+ --------------- 
+   \
+    \
+        .--.
+       |o_o |
+       |:_/ |
+      //   \ \
+     (|     | )
+    /'\_   _/`\
+    \___)=(___/
+[14:21:07 INF] Task (2/2) Task2 - Figlet
+[14:21:07 INF] 
+     _           _                       _   _               
+    | |_   _ ___| |_    __ _ _ __   ___ | |_| |__   ___ _ __ 
+ _  | | | | / __| __|  / _` | '_ \ / _ \| __| '_ \ / _ \ '__|
+| |_| | |_| \__ \ |_  | (_| | | | | (_) | |_| | | |  __/ |   
+ \___/ \__,_|___/\__|  \__,_|_| |_|\___/ \__|_| |_|\___|_|   
+                                                             
+                  _                    
+ _ __   __ _  ___| | ____ _  __ _  ___ 
+| '_ \ / _` |/ __| |/ / _` |/ _` |/ _ \
+| |_) | (_| | (__|   < (_| | (_| |  __/
+| .__/ \__,_|\___|_|\_\__,_|\__, |\___|
+|_|                         |___/      
+                                           
+ _ __  _ __ ___   __ _ _ __ __ _ _ __ ___  
+| '_ \| '__/ _ \ / _` | '__/ _` | '_ ` _ \ 
+| |_) | | | (_) | (_| | | | (_| | | | | | |
+| .__/|_|  \___/ \__, |_|  \__,_|_| |_| |_|
+|_|              |___/                     
+[14:21:07 INF] Done 2 tasks (Returncode: 0, Duration: 00:00:00.9748661)
+```
 
 ## environment variables
+Japp keeps track of variables in .japp_env file  
+The .japp_env file location itself is stored in the variable $JAPP_ENV  
+The environment is reset before each run  
+  
+This example sets a variable and uses it in the next task
+```yml
+apiVersion: japp/v1
+name: japp/environment
+version: 1.0
+description: Japp environment variable example
+files:
+containers:
+install:
+  tasks:
+  - name: Task1
+    description: Generate random password and store in variable MYPASSWORD
+    command: echo MYPASSWORD=$(openssl rand -base64 12) >> $JAPP_ENV
+  - name: Task2
+    description: Print MYPASSWORD
+    command: echo MYPASSWORD is $MYPASSWORD
+```
 
-TODO
+Build and install environment example
+```bash
+$ japp build
+[13:42:52 INF] Build japp package localhost:5000/japp/environment:1.0
+$ japp install japp/environment:1.0 --input .
+[13:42:57 INF] Run 2 tasks in sequence...
+[13:42:57 INF] Task (1/2) Task1 - Generate random password and store in variable MYPASSWORD
+[13:42:57 INF] Task (2/2) Task2 - Print MYPASSWORD
+[13:42:57 INF] 
+MYPASSWORD is KQnq8JF4bcR2Tlxo
+[13:42:57 INF] Done 2 tasks (Returncode: 0, Duration: 00:00:00.0645113)
+```
 
+More to follow...  
+
+---
 
 # build japp from source
 You need .net8.0 sdk git and podman

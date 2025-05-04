@@ -56,7 +56,9 @@ namespace japp.lib.Runner
                 // Sequence
                 foreach (var task in tasks)
                 {
-                    log.Information("Task ({index}/{count}) {name} - {command}", ++index, tasks.Count, task.Name, task.Command);
+                    var description = task.Description ?? task.Command;
+
+                    log.Information("Task ({index}/{count}) {name} - {description}", ++index, tasks.Count, task.Name, description);
 
                     // Check if alias exists for command
                     var myCommand = task.Command.Split(' ').FirstOrDefault();
