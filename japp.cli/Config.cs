@@ -88,7 +88,7 @@ public class Config : Command
         }
 
         var jsonConfig = JsonConvert.SerializeObject(myConfig, Formatting.Indented);
-        log.Information("Config file: {path}\n {config}", Helper.GetConfigPath(), jsonConfig);
+        log.Information("Config file: {path}\n{config}", Helper.GetConfigPath(), jsonConfig);
 
         return System.Threading.Tasks.Task.FromResult(0);
     }

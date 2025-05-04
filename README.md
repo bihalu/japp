@@ -21,7 +21,9 @@ sudo chmod +x /usr/local/bin/japp
 
 ### --help, -h, -?
 ```bash
-$ japp --help
+japp --help
+```
+```txt
 Description:
 
      _
@@ -53,7 +55,9 @@ Commands:
 
 Get detailed help for e.g. command config
 ```bash
-$ japp config --help
+japp config --help
+```
+```txt
 Description:
   Set config values
 
@@ -91,17 +95,19 @@ Any combination of log output and log level is supported
 
 Build japp package and turn logging off
 ```bash
-$ japp --logging console:off build
+japp --logging console:off build
 ```
 
 Pull japp package and log debug to file /tmp/japp/japp.log
 ```bash
-$ japp --logging file:debug pull japp/example:1.0
+japp --logging file:debug pull japp/example:1.0
 ```
 
 ### --version
 ```bash
-$ japp --version
+japp --version
+```
+```txt
 0.1.1_alpha0
 ```
 
@@ -110,9 +116,11 @@ $ japp --version
 ### config
 Show all config values
 ```bash
-$ japp config
+japp config
+```
+```log
 [12:13:13 INF] Config file: C:\Users\Hansi\.japp\config.json
- {
+{
   "Registry": "localhost:5000",
   "TempDir": "C:\\Users\\Hansi\\AppData\\Local\\Temp\\japp",
   "Cleanup": false,
@@ -122,28 +130,28 @@ $ japp config
 
 Set registry to docker.io
 ```bash
-$ japp config --registry docker.io
+japp config --registry docker.io
 ```
 
 Set cleanup to true
 ```bash
-$ japp config --cleanup true
+japp config --cleanup true
 ```
 
 Set temp directory to /tmp/japp
 ```bash
-$ japp config --temp /tmp/japp
+japp config --temp /tmp/japp
 ```
 
 Set tls verify to true  
 > You can use this option if the certificate for your registry is [trusted](#trusted-certificate)
 ```bash
-$ japp config --tls-verify true
+japp config --tls-verify true
 ```
 
 Reset config to default values
 ```bash
-$ japp config --reset
+japp config --reset
 ```
 
 default config values
@@ -160,7 +168,9 @@ Create japp package template in directory mypackage
 > If you ommit output directory then the files are created in the current directory  
 > If you do create again existing files are not overwritten
 ```bash
-$ japp create --output mypackage
+japp create --output mypackage
+```
+```log
 [12:51:34 INF] Create file mypackage\package.yml
 [12:51:34 INF] Create file mypackage\logo.png
 [12:51:34 INF] Create file mypackage\README.md
@@ -170,7 +180,9 @@ $ japp create --output mypackage
 Build japp package from directory mypackage  
 > If you ommit input directory then the package is build in the current directory
 ```bash
-$ japp build --input mypackage
+japp build --input mypackage
+```
+```log
 [13:03:59 INF] Pull container image docker.io/rancher/cowsay:latest
 [13:04:02 INF] Build japp package docker.io/japp/example:1.0
 ```
@@ -180,7 +192,9 @@ Pull japp package japp/example:1.0 to output directory mypackage
 > If you ommit output directory then the package is pulled in the current directory  
 > The long sub directory name is the unique package id
 ```bash
-$ japp pull japp/example:1.0 --output mypackage
+japp pull japp/example:1.0 --output mypackage
+```
+```log
 [13:27:09 INF] Package japp/example:1.0 pulled to mypackage\93d183809f4706f25ee981dc25751a8d17eb976cfea9a9db093e3a66d9fd276a
 ```
 
@@ -188,13 +202,17 @@ $ japp pull japp/example:1.0 --output mypackage
 Push japp package to registry  
 > Make sure you have built the package before
 ```bash
-$ japp push japp/mypackage:1.0
+japp push japp/mypackage:1.0
+```
+```log
 [13:33:42 INF] Push japp package localhost:5000/japp/mypackage:1.0
 ```
 
 With the option --retag all container images of the japp package are also pushed
 ```bash
-$ japp push japp/mypackage:1.0 --retag
+japp push japp/mypackage:1.0 --retag
+```
+```log
 [13:35:03 INF] Push japp package localhost:5000/japp/mypackage:1.0
 [13:35:05 INF] Push container image localhost:5000/rancher/cowsay:latest
 ```
@@ -203,7 +221,9 @@ $ japp push japp/mypackage:1.0 --retag
 Login to registry  
 > necessary if it is a private registry with authentication
 ```bash
-$ japp login --username admin
+japp login --username admin
+```
+```log
 Password: ******
 [13:13:54 INF] Login Succeeded!
 ```
@@ -211,7 +231,9 @@ Password: ******
 ### logout
 Logout from registry
 ```bash
-$ japp logout
+japp logout
+```
+```log
 [13:13:07 INF] Removed login credentials for localhost:5000
 ```
 
@@ -219,7 +241,9 @@ $ japp logout
 Install japp package
 > Make sure you have built or pulled the package before
 ```bash
-$ japp install japp/example:1.0
+japp install japp/example:1.0
+```
+```log
 [18:11:37 INF] Run 3 tasks in sequence...
 [18:11:37 INF] Task (1/3) Test1 - echo Test
 [18:11:37 INF] Task (2/3) Test2 - sleep 3
@@ -229,7 +253,9 @@ $ japp install japp/example:1.0
 
 To quickly test a package you can install it directly from the input directory
 ```bash
-$ japp install japp/example:1.0 --input mypackage
+japp install japp/example:1.0 --input mypackage
+```
+```log
 [18:11:05 INF] Run 3 tasks in sequence...
 [18:11:05 INF] Task (1/3) Test1 - echo Test
 [18:11:05 INF] Task (2/3) Test2 - sleep 3
@@ -262,10 +288,16 @@ install:
 ```
 
 Build and run aliasses example
-```txt
-$ japp build
+```bash
+japp build
+```
+```log
 [14:20:24 INF] Build japp package localhost:5000/japp/aliasses:1.0
-$ japp install japp/aliasses:1.0 --input .
+```
+```bash
+japp install japp/aliasses:1.0 --input .
+```
+```log
 [14:21:06 INF] Run 2 tasks in sequence...
 [14:21:06 INF] Task (1/2) Task1 - Cowsay dressed as penguin
 [14:21:07 INF] 
@@ -329,9 +361,15 @@ install:
 
 Build and install environment example
 ```bash
-$ japp build
+japp build
+```
+```log
 [13:42:52 INF] Build japp package localhost:5000/japp/environment:1.0
-$ japp install japp/environment:1.0 --input .
+```
+```bash
+japp install japp/environment:1.0 --input .
+```
+```log
 [13:42:57 INF] Run 2 tasks in sequence...
 [13:42:57 INF] Task (1/2) Task1 - Generate random password and store in variable MYPASSWORD
 [13:42:57 INF] Task (2/2) Task2 - Print MYPASSWORD
@@ -347,7 +385,7 @@ More to follow...
 # build japp from source
 You need .net8.0 sdk git and podman
 Example for building japp on debian 12
-```
+```bash
 # install .net8.0 sdk -> see https://learn.microsoft.com/de-de/dotnet/core/install/linux-debian
 wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
@@ -399,7 +437,7 @@ You can setup a local registry with the help of CNCF distribution
 Here you find the [source](https://github.com/distribution/distribution/blob/main/README.md) and [docs](https://distribution.github.io/distribution/)  
 
 ## install
-```
+```bash
 wget -qO- https://github.com/distribution/distribution/releases/download/v2.8.3/registry_2.8.3_linux_amd64.tar.gz | tar -xzf - registry && mv registry /usr/local/bin/
 ```
 
@@ -433,7 +471,7 @@ update-ca-certificates
 ```
 
 Execute the script to generate certificates
-```
+```bash
 cd /etc/distribution
 chmod +x generate_cert.sh
 ./generate_cert.sh
@@ -441,7 +479,7 @@ chmod +x generate_cert.sh
 ## htpasswd
 You can protect your registry with username and password  
 Create password for username admin with this command  
-```
+```bash
 apt install -y apache2-utils curl
 htpasswd -b -c -B /etc/distribution/htpasswd admin 123456
 ```
@@ -511,7 +549,7 @@ RequiredBy=network.target
 
 ## test
 Finally you can test your local registry
-```
+```bash
 # enable and start registry service
 systemctl enable registry
 systemctl start registry
@@ -526,6 +564,8 @@ podman tag docker.io/rancher/cowsay:latest localhost:5000/rancher/cowsay:latest
 podman login -u admin -p 123456 localhost:5000
 podman push localhost:5000/rancher/cowsay:latest
 podman run localhost:5000/rancher/cowsay:latest Mooo
+```
+```log
  ______
 < Mooo >
  ------
@@ -534,13 +574,12 @@ podman run localhost:5000/rancher/cowsay:latest Mooo
             (__)\       )\/\
                 ||----w |
                 ||     ||
-
 ```
 
 # trusted certificate
 The certificate of your registry is stored in /etc/distribution/localhost.crt  
 To trust this certificate on another host simply copy it over in the directory /usr/local/share/ca-certificates/ and update ca certificates
-```
+```bash
 scp /etc/distribution/localhost.crt root@<target-host>:/usr/local/share/ca-certificates/
 ssh root@<target-host> update-ca-certificates
 ```
